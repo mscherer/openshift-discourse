@@ -65,7 +65,7 @@ objects:
     name: ${NAME}
 
 - apiVersion: v1
-    kind: BuildConfig
+  kind: BuildConfig
   metadata:
     annotations:
       description: Takes s2i Ruby image and adds some dependencies
@@ -82,7 +82,7 @@ objects:
         ref: ${s2i_SOURCE_REPOSITORY_REF}
         uri: ${s2i_SOURCE_REPOSITORY_URL}
       type: Git
-strategy:
+    strategy:
       sourceStrategy:
         env:
         #- name: PIP_INDEX_URL
@@ -93,10 +93,10 @@ strategy:
           namespace: ${NAMESPACE}
         # see https://docs.openshift.com/container-platform/3.9/dev_guide/builds/build_strategies.html#override-builder-image-scripts
         #scripts: https://raw.githubusercontent.com/mscherer/discourse-openshift/master/
-      type: Source
-    triggers:
-    - type: ImageChange
-    - type: ConfigChange
+        type: Source
+      triggers:
+      - type: ImageChange
+      - type: ConfigChange
 
 - apiVersion: v1
   kind: BuildConfig
@@ -116,7 +116,7 @@ strategy:
         ref: ${SOURCE_REPOSITORY_REF}
         uri: ${SOURCE_REPOSITORY_URL}
       type: Git
-strategy:
+    strategy:
       sourceStrategy:
         env:
         #- name: PIP_INDEX_URL
@@ -443,8 +443,8 @@ parameters:
 - description: The OpenShift Namespace where the ImageStream resides.
   displayName: Namespace
   name: NAMESPACE
-  required: true
-  value: openshift
+    #required: true
+    #value: openshift-image-registry
 
 - description: Version of Python image to be used (3.6 or latest).
   displayName: Version of Python Image
@@ -480,7 +480,7 @@ parameters:
   displayName: Git Repository URL
   name: s2i_SOURCE_REPOSITORY_URL
   required: true
-  value: https://github.com/jontrossbach/discourse-container
+  value: https://github.com/jontrossbach/openshift-discourse
 
 - description: Set this to a branch name, tag or other ref of your repository if you
     are not using the default branch.
