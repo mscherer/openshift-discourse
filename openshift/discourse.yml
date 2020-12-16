@@ -30,6 +30,7 @@ objects:
   stringData:
     database-password: ${DATABASE_PASSWORD}
     database-user: ${DATABASE_USER}
+    redis-password: ${REDIS_PASSWORD}
 
 # - apiVersion: v1
 #   kind: Service
@@ -65,6 +66,15 @@ objects:
     name: ${NAME}
 
 - apiVersion: v1
+  kind: ImageStream
+  metadata:
+    annotations:
+      description: Keeps track of changes in the application base image
+    name: s2i-imagemagick-sqlite
+    namespace: ${openshift.project()}
+    tag: latest
+
+- apiVersion: v1
   kind: BuildConfig
   metadata:
     annotations:
@@ -77,23 +87,15 @@ objects:
         kind: ImageStreamTag
         name: s2i-imagemagick-sqlite:latest
     source:
-      contextDir: app
       git:
         ref: ${s2i_SOURCE_REPOSITORY_REF}
         uri: ${s2i_SOURCE_REPOSITORY_URL}
       type: Git
     strategy:
-      sourceStrategy:
-        env:
-        #- name: PIP_INDEX_URL
-        #  value: ${PIP_INDEX_URL}
-        from:
-          kind: ImageStreamTag
-          name: s2i-imagemagick-sqlite:latest
-          namespace: ${NAMESPACE}
+      dockerStrategy:
+        noCache: true
         # see https://docs.openshift.com/container-platform/3.9/dev_guide/builds/build_strategies.html#override-builder-image-scripts
         #scripts: https://raw.githubusercontent.com/mscherer/discourse-openshift/master/
-        type: Source
       triggers:
       - type: ImageChange
       - type: ConfigChange
@@ -124,7 +126,7 @@ objects:
         from:
           kind: ImageStreamTag
           name: s2i-imagemagick-sqlite:latest
-          namespace: ${NAMESPACE}
+          #namespace: ${openshift.project()}
         # see https://docs.openshift.com/container-platform/3.9/dev_guide/builds/build_strategies.html#override-builder-image-scripts
         #scripts: https://raw.githubusercontent.com/mscherer/discourse-openshift/master/
       type: Source
@@ -181,7 +183,7 @@ objects:
             #  secretKeyRef:
             #    key: django-secret-key
             #    name: ${NAME}
-          image: ' '
+          image: image-registry.openshift-image-registry.svc:5000/${PROJECT_NAME}/discourse:latest
           livenessProbe:
             httpGet:
               path: /
@@ -205,8 +207,8 @@ objects:
             name: discourse-data
         initContainers:
         - name: init-database-table
-          image: ' '
-          command: ['sh', '-c', 'rake db:create']
+          image: image-registry.openshift-image-registry.svc:5000/${PROJECT_NAME}/discourse:latest
+          command: ['sh', '-c', 'cd .. && pwd && ls && rake db:create --trace']
         volumes:
         - name: discourse-data
           persistentVolumeClaim:
@@ -443,8 +445,8 @@ parameters:
 - description: The OpenShift Namespace where the ImageStream resides.
   displayName: Namespace
   name: NAMESPACE
-    #required: true
-    #value: openshift-image-registry
+  required: true
+  value: openshift
 
 - description: Version of Python image to be used (3.6 or latest).
   displayName: Version of Python Image
@@ -554,7 +556,7 @@ parameters:
   displayName: Version of Redis Image
   name: REDIS_VERSION
   required: true
-  value: '3.2'
+  value: latest
 
 - description: Password for the Redis connection user.
   displayName: Redis Connection Password
@@ -580,3 +582,5 @@ parameters:
   name: MAIL_SERVER
   required: true
   value: smtp.corp.redhat.co
+
+- name: PROJECT_NAME
