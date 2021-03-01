@@ -43,7 +43,7 @@ RUN yum -y module enable ruby:$RUBY_VERSION && \
     rubygem-rake \
     rubygem-bundler \
     redhat-rpm-config \
-    ImageMagick ImageMagick-devel ImageMagick-perl sqlite \
+    ImageMagick ImageMagick-devel ImageMagick-perl sqlite puma brotli \
     " && \
     yum install -y --setopt=tsflags=nodocs ${INSTALL_PKGS} && \
     yum -y clean all --enablerepo='*' && \

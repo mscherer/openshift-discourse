@@ -121,8 +121,38 @@ objects:
     strategy:
       sourceStrategy:
         env:
-        #- name: PIP_INDEX_URL
-        #  value: ${PIP_INDEX_URL}
+          - name: DISCOURSE_SITE_URL
+            value: 'https://${APPLICATION_DOMAIN}'
+          - name: DISCOURSE_DB_TYPE
+            value: postgresql
+          - name: DISCOURSE_DB_HOST
+            value: postgresql
+          - name: DISCOURSE_DB_NAME
+            value: '${DATABASE_NAME}'
+          - name: DISCOURSE_DB_USER
+            valueFrom:
+              secretKeyRef:
+                name: '${NAME}'
+                key: database-user
+          - name: DISCOURSE_DB_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: '${NAME}'
+                key: database-password
+          - name: APP_MODULE
+            value: app
+          - name: DISCOURSE_REDIS_PASSWORD
+            value: '${REDIS_PASSWORD}'
+          - name: DISCOURSE_REDIS_HOST
+            value: redis
+          - name: RAILS_ENV
+            value: production
+          - name: RAILS_SERVE_STATIC_FILES
+            value: 'true'
+          - name: DISCOURSE_SERVE_STATIC_ASSETS
+            value: 'true'
+          - name: DISCOURSE_MAXMIND_LICENSE_KEY
+            value: '${DISCOURSE_MAXMIND_LICENSE_KEY}'
         from:
           kind: ImageStreamTag
           name: s2i-imagemagick-sqlite:latest
@@ -195,6 +225,8 @@ objects:
             value: "true"
           - name: DISCOURSE_SERVE_STATIC_ASSETS
             value: "true"
+          - name: DISCOURSE_MAXMIND_LICENSE_KEY
+            value: "${DISCOURSE_MAXMIND_LICENSE_KEY}"
           image: image-registry.openshift-image-registry.svc:5000/${PROJECT_NAME}/discourse:latest
           livenessProbe:
             httpGet:
@@ -594,6 +626,13 @@ parameters:
   displayName: RedHat mail server
   name: MAIL_SERVER
   required: true
-  value: smtp.corp.redhat.co
+  value: smtp.corp.redhat.com
+
+- description: Maxmind IP Reverse Look Up Key
+  displayName: Maxmind IP Reverse Look Up Key
+  name: DISCOURSE_MAXMIND_LICENSE_KEY
+  required: true
+  value: TH15154F4K3K3Y
+
 
 - name: PROJECT_NAME
