@@ -121,10 +121,6 @@ objects:
     strategy:
       sourceStrategy:
         env:
-          - name: DISCOURSE_SITE_URL
-            value: 'https://${APPLICATION_DOMAIN}'
-          - name: DISCOURSE_DB_TYPE
-            value: postgresql
           - name: DISCOURSE_DB_HOST
             value: postgresql
           - name: DISCOURSE_DB_NAME
@@ -139,8 +135,6 @@ objects:
               secretKeyRef:
                 name: '${NAME}'
                 key: database-password
-          - name: APP_MODULE
-            value: app
           - name: DISCOURSE_REDIS_PASSWORD
             value: '${REDIS_PASSWORD}'
           - name: DISCOURSE_REDIS_HOST
@@ -151,8 +145,8 @@ objects:
             value: 'true'
           - name: DISCOURSE_SERVE_STATIC_ASSETS
             value: 'true'
-          - name: DISCOURSE_MAXMIND_LICENSE_KEY
-            value: '${DISCOURSE_MAXMIND_LICENSE_KEY}'
+          #- name: DISCOURSE_MAXMIND_LICENSE_KEY
+          #  value: '${DISCOURSE_MAXMIND_LICENSE_KEY}'
         from:
           kind: ImageStreamTag
           name: s2i-imagemagick-sqlite:latest
@@ -225,8 +219,8 @@ objects:
             value: "true"
           - name: DISCOURSE_SERVE_STATIC_ASSETS
             value: "true"
-          - name: DISCOURSE_MAXMIND_LICENSE_KEY
-            value: "${DISCOURSE_MAXMIND_LICENSE_KEY}"
+          #- name: DISCOURSE_MAXMIND_LICENSE_KEY
+          #  value: "${DISCOURSE_MAXMIND_LICENSE_KEY}"
           image: image-registry.openshift-image-registry.svc:5000/${PROJECT_NAME}/discourse:latest
           livenessProbe:
             httpGet:
@@ -252,7 +246,7 @@ objects:
         initContainers:
         - name: init-database-table
           image: image-registry.openshift-image-registry.svc:5000/${PROJECT_NAME}/discourse:latest
-          command: ['sh', '-c', 'cd .. && pwd && ls && rake db:create --trace']
+          command: ['sh', '-c', 'cd .. && pwd && ls && rake db:create --trace && rake db:migrate --trace']
         volumes:
         - name: discourse-data
           persistentVolumeClaim:
@@ -544,7 +538,7 @@ parameters:
     are not using the default branch.
   displayName: Git Reference
   name: SOURCE_REPOSITORY_REF
-  #tag: v2.5.6 
+  tag: v2.6.2 
 
 
 - description: The exposed hostname that will route to the Django service, if left
