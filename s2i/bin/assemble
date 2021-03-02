@@ -51,8 +51,8 @@ if [ -f Gemfile ]; then
   echo "---> Running 'bundle install ${ADDTL_BUNDLE_ARGS}' ..."
   bundle install --path ./bundle ${ADDTL_BUNDLE_ARGS}
 
-  echo "---> Cleaning up unused ruby gems ..."
-  bundle clean -V
+#  echo "---> Cleaning up unused ruby gems ..."
+#  bundle clean -V
 fi
 
 if ! bundle exec rackup -h &>/dev/null; then
