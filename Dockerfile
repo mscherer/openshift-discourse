@@ -47,7 +47,7 @@ RUN yum -y module enable ruby:$RUBY_VERSION && \
     " && \
     yum install -y --setopt=tsflags=nodocs ${INSTALL_PKGS} && \
     yum -y clean all --enablerepo='*' && \
-    rpm -V ${INSTALL_PKGS} \
+    rpm -V ${INSTALL_PKGS} 
 
 RUN npm -g list uglify-js
 
