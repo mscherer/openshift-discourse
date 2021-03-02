@@ -51,7 +51,7 @@ RUN yum -y module enable ruby:$RUBY_VERSION && \
 
 RUN yum install -y nodejs npm
 
-RUN npm install uglify
+RUN npm install uglify-js
 
 # Copy the S2I scripts from the specific language image to $STI_SCRIPTS_PATH
 COPY ./s2i/bin/ $STI_SCRIPTS_PATH
