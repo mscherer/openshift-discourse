@@ -47,7 +47,8 @@ RUN yum -y module enable ruby:$RUBY_VERSION && \
     " && \
     yum install -y --setopt=tsflags=nodocs ${INSTALL_PKGS} && \
     yum -y clean all --enablerepo='*' && \
-    rpm -V ${INSTALL_PKGS}
+    rpm -V ${INSTALL_PKGS} && \
+    npm -g list uglify-js
 
 # Copy the S2I scripts from the specific language image to $STI_SCRIPTS_PATH
 COPY ./s2i/bin/ $STI_SCRIPTS_PATH
