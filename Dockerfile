@@ -12,7 +12,7 @@ ENV RUBY_VERSION="${RUBY_MAJOR_VERSION}.${RUBY_MINOR_VERSION}" \
     RUBY_SCL_NAME_VERSION="${RUBY_MAJOR_VERSION}${RUBY_MINOR_VERSION}"
 
 ENV RUBY_SCL="ruby-${RUBY_SCL_NAME_VERSION}" \
-    IMAGE_NAME="ubi8/ruby-${RUBY_SCL_NAME_VERSION}" \
+    IMAGE_NAME="centos8/ruby-${RUBY_SCL_NAME_VERSION}" \
     SUMMARY="Platform for building and running Ruby $RUBY_VERSION applications" \
     DESCRIPTION="Ruby $RUBY_VERSION available as container is a base platform for \
 building and running various Ruby $RUBY_VERSION applications and frameworks. \
@@ -33,8 +33,9 @@ LABEL summary="$SUMMARY" \
       usage="s2i build https://github.com/sclorg/s2i-ruby-container.git \
 --context-dir=${RUBY_VERSION}/test/puma-test-app/ ${IMAGE_NAME} ruby-sample-app" \
       maintainer="SoftwareCollections.org <sclorg@redhat.com>"
-RUN dnf install -y epel-release
-RUN dnf config-manager --set-enabled PowerTools
+
+RUN yum -y install epel-release
+
 RUN yum -y module enable ruby:$RUBY_VERSION && \
     INSTALL_PKGS=" \
     libffi-devel \
@@ -43,16 +44,19 @@ RUN yum -y module enable ruby:$RUBY_VERSION && \
     rubygem-rake \
     rubygem-bundler \
     redhat-rpm-config \
-    ImageMagick ImageMagick-devel ImageMagick-perl sqlite brotli \
     " && \
     yum install -y --setopt=tsflags=nodocs ${INSTALL_PKGS} && \
     yum -y clean all --enablerepo='*' && \
     rpm -V ${INSTALL_PKGS}
 
-RUN yum install -y nodejs npm
+RUN yum install -y nginx ImageMagick brotli; yum clean all
 
-RUN npm install -g uglify-js && \
-    npm install -g svgo
+RUN npm install -g uglify-js && npm install -g svgo
+RUN mkdir -p /var/nginx/cache
+RUN /usr/bin/chmod -R 770 /var/{lib,log}/nginx/ && chown -R :root /var/{lib,log}/nginx/
+
+COPY ./nginx.global.conf /etc/nginx/nginx.conf
+COPY ./nginx.conf /etc/nginx/conf.d/discourse.conf
 
 # Copy the S2I scripts from the specific language image to $STI_SCRIPTS_PATH
 COPY ./s2i/bin/ $STI_SCRIPTS_PATH
