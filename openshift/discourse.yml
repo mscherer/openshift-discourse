@@ -32,21 +32,21 @@ objects:
     database-user: ${DATABASE_USER}
     redis-password: ${REDIS_PASSWORD}
 
-# - apiVersion: v1
-#   kind: Service
-#   metadata:
-#     annotations:
-#       description: Exposes and load balances the application pods
-#       service.alpha.openshift.io/dependencies: '[{"name": "postgresql",
-#         "kind": "Service"}]'
-#     name: ${NAME}
-#   spec:
-#     ports:
-#     - name: web
-#       port: 8080
-#       targetPort: 8080
-#     selector:
-#       name: ${NAME}
+- apiVersion: v1
+  kind: Service
+  metadata:
+    annotations:
+      description: Exposes and load balances the application pods
+      service.alpha.openshift.io/dependencies: '[{"name": "postgresql",
+        "kind": "Service"}]'
+    name: ${NAME}
+  spec:
+    ports:
+    - name: web
+      port: 8080
+      targetPort: 8080
+    selector:
+      name: ${NAME}
 
 - apiVersion: v1
   kind: Route
@@ -70,7 +70,7 @@ objects:
   metadata:
     annotations:
       description: Keeps track of changes in the application base image
-    name: s2i-imagemagick-sqlite
+    name: s2i-imagemagick-nodejs
     namespace: ${openshift.project()}
     tag: latest
 
@@ -194,12 +194,12 @@ objects:
             valueFrom:
               secretKeyRef:
                 key: database-user
-                name: ${NAME}
+                name: '${NAME}'
           - name: DISCOURSE_DB_PASSWORD
             valueFrom:
               secretKeyRef:
                 key: database-password
-                name: ${NAME}
+                name: '${NAME}'
           #- name: APP_CONFIG
           #value: ${APP_CONFIG}
           - name: APP_MODULE
@@ -246,7 +246,7 @@ objects:
         initContainers:
         - name: init-database-table
           image: image-registry.openshift-image-registry.svc:5000/${PROJECT_NAME}/discourse:latest
-          command: ['sh', '-c', 'cd .. && pwd && ls && rake db:create --trace && rake db:migrate --trace']
+          command: ['sh', '-c', 'pwd && ls && rake db:migrate --trace']
         volumes:
         - name: discourse-data
           persistentVolumeClaim:
@@ -370,6 +370,48 @@ objects:
           namespace: ${NAMESPACE}
       type: ImageChange
     - type: ConfigChange
+
+#- apiVersion: batch/v1beta1
+#  kind: CronJob
+#  metadata:
+#    name: create-postgresql-extensions
+#  spec:
+#    schedule: "*/1 * * * *"
+#    jobTemplate:
+#      spec:
+#        template:
+#          spec:
+#            containers:
+#              name: create-postgresql-extensions
+#              image: ' '  #postgresql:${POSTGRESQL_VERSION}
+#              imagePullPolicy: IfNotPresent
+#              command: ['sh', '-c', 'psql -U postgres -d discourse -c "CREATE EXTENSION hstore;"  && psql -U postgres -d discourse -c "CREATE EXTENSION pg_trgm;"']
+#              env:
+#              - name: POSTGRESQL_USER
+#                valueFrom:
+#                  secretKeyRef:
+#                    key: database-user
+#                    name: ${NAME}
+#              - name: POSTGRESQL_PASSWORD
+#                valueFrom:
+#                  secretKeyRef:
+#                    key: database-password
+#                    name: ${NAME}
+#              - name: POSTGRESQL_DATABASE
+#                value: ${DATABASE_NAME}
+#            restartPolicy: OnFailure
+#        triggers:
+#        - imageChangeParams:
+#            automatic: true
+#            containerNames:
+#            - create-postgresql-extensions
+#            from:
+#              kind: ImageStreamTag
+#              name: postgresql:${POSTGRESQL_VERSION}
+#              namespace: ${NAMESPACE}
+#          type: ImageChange
+#        - type: ConfigChange
+
 
 - apiVersion: v1
   kind: PersistentVolumeClaim
