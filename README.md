@@ -3,7 +3,7 @@ This is an automated deploment of discourse for OpenShift
 
 To get it working (with the optional email environment variable):
 
-`oc process -f openshift/discourse.yml -p PROJECT_NAME=anchovy-discourse-project-6 -e MAIL_FROM=<you>@redhat.com | oc create -f -
+`oc process -f openshift/discourse.yml -p PROJECT_NAME=anchovy-discourse-project-6 -e MAIL_FROM=<you>@redhat.com | oc create -f -`
 
 The postgresql extensions needed by discourse need to be done manually:
 
