@@ -80,12 +80,12 @@ objects:
     annotations:
       description: Takes s2i Ruby image and adds some dependencies
       template.alpha.openshift.io/wait-for-ready: 'true'
-    name: s2i-imagemagick-sqlite
+    name: s2i-imagemagick-nodejs
   spec:
     output:
       to:
         kind: ImageStreamTag
-        name: s2i-imagemagick-sqlite:latest
+        name: s2i-imagemagick-nodejs:latest
     source:
       git:
         ref: ${s2i_SOURCE_REPOSITORY_REF}
@@ -149,7 +149,7 @@ objects:
           #  value: '${DISCOURSE_MAXMIND_LICENSE_KEY}'
         from:
           kind: ImageStreamTag
-          name: s2i-imagemagick-sqlite:latest
+          name: s2i-imagemagick-nodejs:latest
           #namespace: ${openshift.project()}
         # see https://docs.openshift.com/container-platform/3.9/dev_guide/builds/build_strategies.html#override-builder-image-scripts
         #scripts: https://raw.githubusercontent.com/mscherer/discourse-openshift/master/
@@ -181,6 +181,68 @@ objects:
         name: ${NAME}
       spec:
         containers:
+#          - env:
+#          - name: DISCOURSE_SITE_URL
+#            value: https://${APPLICATION_DOMAIN}
+#          - name: DISCOURSE_DB_TYPE
+#            value: postgresql
+#          - name: DISCOURSE_DB_HOST
+#            value: postgresql
+#          - name: DISCOURSE_DB_NAME
+#            value: ${DATABASE_NAME}
+#          - name: DISCOURSE_DB_USER
+#            valueFrom:
+#              secretKeyRef:
+#                key: database-user
+#                name: '${NAME}'
+#          - name: DISCOURSE_DB_PASSWORD
+#            valueFrom:
+#              secretKeyRef:
+#                key: database-password
+#                name: '${NAME}'
+#          #- name: APP_CONFIG
+#          #value: ${APP_CONFIG}
+#          - name: APP_MODULE
+#            value: app
+#            #- name: DJANGO_SECRET_KEY
+#            #valueFrom:
+#            #  secretKeyRef:
+#            #    key: django-secret-key
+#            #    name: ${NAME}
+#          - name: DISCOURSE_REDIS_PASSWORD
+#            value: ${REDIS_PASSWORD}
+#          - name: DISCOURSE_REDIS_HOST
+#            value: redis
+#          - name: RAILS_ENV
+#            value: production
+#          - name: RAILS_SERVE_STATIC_FILES
+#            value: "true"
+#          - name: DISCOURSE_SERVE_STATIC_ASSETS
+#            value: "true"
+#          #- name: DISCOURSE_MAXMIND_LICENSE_KEY
+#          #  value: "${DISCOURSE_MAXMIND_LICENSE_KEY}"
+#          image: image-registry.openshift-image-registry.svc:5000/${PROJECT_NAME}/discourse:latest
+#          livenessProbe:
+#            httpGet:
+#              path: /
+#              port: 8080
+#            initialDelaySeconds: 30
+#            timeoutSeconds: 3
+#          name: discourse-nginx
+#          ports:
+#          - containerPort: 8080
+#          readinessProbe:
+#            httpGet:
+#              path: /
+#              port: 8080
+#            initialDelaySeconds: 3
+#            timeoutSeconds: 3
+#          resources:
+#            limits:
+#              memory: ${MEMORY_LIMIT}
+#          volumeMounts:
+#          - mountPath: /var/lib/discourse/
+#            name: discourse-data
         - env:
           - name: DISCOURSE_SITE_URL
             value: https://${APPLICATION_DOMAIN}
