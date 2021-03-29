@@ -229,6 +229,7 @@ objects:
             initialDelaySeconds: 30
             timeoutSeconds: 3
           name: discourse-nginx
+          command: ['sh', '-c', 'nginx -g "daemon off;"']
           ports:
           - containerPort: 8081
           readinessProbe:
