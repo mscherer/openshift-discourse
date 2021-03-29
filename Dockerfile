@@ -4,6 +4,7 @@ FROM centos/s2i-base-centos8
 # applications.
 
 EXPOSE 8080
+EXPOSE 8081
 
 ENV RUBY_MAJOR_VERSION=2 \
     RUBY_MINOR_VERSION=7
@@ -55,8 +56,12 @@ RUN npm install -g uglify-js && npm install -g svgo
 RUN mkdir -p /var/nginx/cache
 RUN /usr/bin/chmod -R 770 /var/{lib,log}/nginx/ && chown -R :root /var/{lib,log}/nginx/
 
+# Copy Nginx discourse config files
 COPY ./nginx.global.conf /etc/nginx/nginx.conf
 COPY ./nginx.conf /etc/nginx/conf.d/discourse.conf
+
+# Copy Puma socket file
+COPY ./puma.sock /tmp/sockets/puma.sock
 
 # Copy the S2I scripts from the specific language image to $STI_SCRIPTS_PATH
 COPY ./s2i/bin/ $STI_SCRIPTS_PATH
