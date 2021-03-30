@@ -68,7 +68,7 @@ RUN /usr/bin/chmod -R 770 /var/{lib,log}/nginx/ && chown -R :root /var/{lib,log}
 
 # Copy Nginx discourse config files
 COPY ./nginx.global.conf /etc/nginx/nginx.conf
-COPY ./nginx.conf /etc/nginxi/conf.d/discourse.conf
+COPY ./nginx.conf /etc/nginx/conf.d/discourse.conf
 
 # Copy Puma socket file
 COPY ./puma.sock /tmp/sockets/puma.sock
