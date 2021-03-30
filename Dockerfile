@@ -65,7 +65,7 @@ COPY ./puma.sock /tmp/sockets/puma.sock
 
 # This should allow nginx-sidecar to start without priviledge escilation
 RUN touch /run/nginx.pid \
- && chown -R api-gatway:api-gatway /run/nginx.pid /cache/nginx
+ && chown -R 666 /run/nginx.pid /cache/nginx
 
 # Copy the S2I scripts from the specific language image to $STI_SCRIPTS_PATH
 COPY ./s2i/bin/ $STI_SCRIPTS_PATH
