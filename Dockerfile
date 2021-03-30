@@ -57,11 +57,15 @@ RUN mkdir -p /var/nginx/cache
 RUN /usr/bin/chmod -R 770 /var/{lib,log}/nginx/ && chown -R :root /var/{lib,log}/nginx/
 
 # Copy Nginx discourse config files
-#COPY ./nginx.global.conf /etc/nginx/nginx.conf
-COPY ./nginx.conf /etc/nginx/nginx.conf
+COPY ./nginx.global.conf /etc/nginx/nginx.conf
+COPY ./nginx.conf /etc/nginxi/conf.d/discourse.conf
 
 # Copy Puma socket file
 COPY ./puma.sock /tmp/sockets/puma.sock
+
+# This should allow nginx-sidecar to start without priviledge escilation
+RUN touch /run/nginx.pid \
+ && chown -R api-gatway:api-gatway /run/nginx.pid /cache/nginx
 
 # Copy the S2I scripts from the specific language image to $STI_SCRIPTS_PATH
 COPY ./s2i/bin/ $STI_SCRIPTS_PATH
