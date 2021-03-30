@@ -76,8 +76,9 @@ COPY ./root/ /
 # Drop the root user and make the content of /opt/app-root owned by user 1001
 RUN chown -R 1001:0 ${APP_ROOT} && chmod -R ug+rwx ${APP_ROOT} && \
     rpm-file-permissions
+RUN chown -R 1001:0 /run/nginx.pid
 
 USER 1001
 
 # Set the default CMD to print the usage of the language image
-CMD $STI_SCRIPTS_PATH/usage
+udo tail -f /var/log/nginx/access.log /var/log/nginx/error.logCMD $STI_SCRIPTS_PATH/usage
