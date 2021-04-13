@@ -178,6 +178,15 @@ objects:
         - env:
           - name: DISCOURSE_SITE_URL
             value: https://${APPLICATION_DOMAIN}
+          - name: DISCOURSE_DB_TYPE
+          - name: DISCOURSE_DB_HOST
+          - name: DISCOURSE_DB_NAME
+          - name: DISCOURSE_DB_USER
+          - name: DISCOURSE_DB_PASSWORD
+          - name: APP_MODULE
+            value: app
+          - name: DISCOURSE_REDIS_PASSWORD
+          - name: DISCOURSE_REDIS_HOST
           image: image-registry.openshift-image-registry.svc:5000/${PROJECT_NAME}/discourse:latest
           livenessProbe:
             httpGet:
