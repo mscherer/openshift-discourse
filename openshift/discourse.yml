@@ -175,14 +175,23 @@ objects:
         name: ${NAME}
       spec:
         containers:
+        # Clear Nginx container of unnecissary environement information
         - env:
           - name: DISCOURSE_SITE_URL
-            value: https://${APPLICATION_DOMAIN}
+            value: 'https://'
           - name: DISCOURSE_DB_TYPE
           - name: DISCOURSE_DB_HOST
           - name: DISCOURSE_DB_NAME
           - name: DISCOURSE_DB_USER
           - name: DISCOURSE_DB_PASSWORD
+          - name: REDIS_SERVICE_HOST
+          - name: REDIS_PORT
+          - name: REDIS_PORT_6379_TCP_ADDR
+          - name: REDIS_PORT_6379_TCP
+          - name: POSTGRESQL_PORT_5432_TCP_ADDR
+          - name: POSTGRESQL_PORT_5432_TCP
+          - name: POSTGRESQL_SERVICE_HOST
+          - name: POSTGRESQL_PORT
           - name: APP_MODULE
             value: app
           - name: DISCOURSE_REDIS_PASSWORD
