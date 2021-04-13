@@ -211,6 +211,8 @@ objects:
           - mountPath: /var/lib/discourse/
             name: discourse-data
         - env:
+          - name: PUMA_WORKERS
+            value: 2
           - name: DISCOURSE_SITE_URL
             value: https://${APPLICATION_DOMAIN}
           - name: DISCOURSE_DB_TYPE
@@ -635,11 +637,6 @@ parameters:
   from: '[a-zA-Z0-9]{16}'
   generate: expression
   name: DATABASE_PASSWORD
-
-- description: The custom PyPi index URL
-  displayName: Custom PyPi Index URL
-  name: PIP_INDEX_URL
-  value: ''
 
 - description: Version of Redis image to be used (3.2 or latest).
   displayName: Version of Redis Image
