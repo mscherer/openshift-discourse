@@ -607,7 +607,7 @@ parameters:
     are not using the default branch.
   displayName: Git Reference
   name: SOURCE_REPOSITORY_REF
-  tag: v2.6.2 
+  value: v2.6.4 
 
 
 - description: The exposed hostname that will route to the Nginx-to-Rails service, if left

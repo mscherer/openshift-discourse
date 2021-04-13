@@ -1,6 +1,8 @@
 # openshift-discourse
 This is an automated deploment of discourse for OpenShift
 
+If this deployment doesn't work for you immediatly. Perhaps the most common thing that breaks this deployment is how quickly the disocurse project drops maintenence/support for a stable release (sometimes within days on a new stable release) often for security reasons.
+
 To get it working (with the optional email environment variable):
 
 `oc process -f openshift/discourse.yml -p PROJECT_NAME=<project-name> -e MAIL_FROM=<you>@redhat.com | oc create -f -`
