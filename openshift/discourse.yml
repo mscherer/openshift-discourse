@@ -212,7 +212,7 @@ objects:
             name: discourse-data
         - env:
           - name: PUMA_WORKERS
-            value: 2
+            value: '2'
           - name: DISCOURSE_SITE_URL
             value: https://${APPLICATION_DOMAIN}
           - name: DISCOURSE_DB_TYPE
