@@ -175,27 +175,9 @@ objects:
         name: ${NAME}
       spec:
         containers:
-        # Clear Nginx container of unnecissary environement information
         - env:
           - name: DISCOURSE_SITE_URL
-            value: 'https://'
-          - name: DISCOURSE_DB_TYPE
-          - name: DISCOURSE_DB_HOST
-          - name: DISCOURSE_DB_NAME
-          - name: DISCOURSE_DB_USER
-          - name: DISCOURSE_DB_PASSWORD
-          - name: REDIS_SERVICE_HOST
-          - name: REDIS_PORT
-          - name: REDIS_PORT_6379_TCP_ADDR
-          - name: REDIS_PORT_6379_TCP
-          - name: POSTGRESQL_PORT_5432_TCP_ADDR
-          - name: POSTGRESQL_PORT_5432_TCP
-          - name: POSTGRESQL_SERVICE_HOST
-          - name: POSTGRESQL_PORT
-          - name: APP_MODULE
-            value: app
-          - name: DISCOURSE_REDIS_PASSWORD
-          - name: DISCOURSE_REDIS_HOST
+            value: https://${APPLICATION_DOMAIN}
           image: image-registry.openshift-image-registry.svc:5000/${PROJECT_NAME}/discourse:latest
           livenessProbe:
             httpGet:
@@ -220,8 +202,6 @@ objects:
           - mountPath: /var/lib/discourse/
             name: discourse-data
         - env:
-          - name: PUMA_WORKERS
-            value: '2'
           - name: DISCOURSE_SITE_URL
             value: https://${APPLICATION_DOMAIN}
           - name: DISCOURSE_DB_TYPE
@@ -616,7 +596,7 @@ parameters:
     are not using the default branch.
   displayName: Git Reference
   name: SOURCE_REPOSITORY_REF
-  value: v2.6.4 
+  tag: v2.6.2 
 
 
 - description: The exposed hostname that will route to the Nginx-to-Rails service, if left
@@ -647,6 +627,11 @@ parameters:
   generate: expression
   name: DATABASE_PASSWORD
 
+- description: The custom PyPi index URL
+  displayName: Custom PyPi Index URL
+  name: PIP_INDEX_URL
+  value: ''
+
 - description: Version of Redis image to be used (3.2 or latest).
   displayName: Version of Redis Image
   name: REDIS_VERSION
@@ -672,11 +657,11 @@ parameters:
   required: true
   value: 1Gi
 
-- description: RedHat mail server
-  displayName: RedHat mail server
-  name: MAIL_SERVER
+- description: SMTP mail server
+  displayName: Discourse mail server
+  name: SMTP_URL
   required: true
-  value: smtp.corp.redhat.com
+  value: smtp.osci.com
 
 - description: Maxmind IP Reverse Look Up Key
   displayName: Maxmind IP Reverse Look Up Key
@@ -685,3 +670,7 @@ parameters:
   value: TH15154F4K3K3Y
 
 - name: PROJECT_NAME
+
+- name: DISCOURSE_ADMIN_EMAILS
+
+- name: DISCOURSE_ADMIN_EMAILS_KEY
