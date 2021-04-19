@@ -69,7 +69,7 @@ echo "---> Creating specified admin user ..."
   $DISCOURSE_ADMIN_EMAILS
   $DISCOURSE_ADMIN_EMAILS_KEY
   $DISCOURSE_ADMIN_EMAILS_KEY
-  'y'
+  y
   END
 
 # Unset environment variables
