@@ -139,6 +139,12 @@ objects:
             value: 'true'
           - name: DISCOURSE_SERVE_STATIC_ASSETS
             value: 'true'
+          - name: DISCOURSE_ADMIN_EMAILS
+            value: ${DISCOURSE_ADMIN_EMAILS}
+          - name: DISCOURSE_ADMIN_EMAILS_KEY
+            value: ${DISCOURSE_ADMIN_EMAILS_KEY}
+          - name: SMTP_URL
+            value: ${SMTP_URL}
           #- name: DISCOURSE_MAXMIND_LICENSE_KEY
           #  value: '${DISCOURSE_MAXMIND_LICENSE_KEY}'
         from:
@@ -234,6 +240,12 @@ objects:
             value: "true"
           - name: DISCOURSE_SERVE_STATIC_ASSETS
             value: "true"
+          - name: DISCOURSE_ADMIN_EMAILS
+            value: ${DISCOURSE_ADMIN_EMAILS}
+          - name: DISCOURSE_ADMIN_EMAILS_KEY
+            value: ${DISCOURSE_ADMIN_EMAILS_KEY}
+          - name: SMTP_URL
+            value: ${SMTP_URL}
           #- name: DISCOURSE_MAXMIND_LICENSE_KEY
           #  value: "${DISCOURSE_MAXMIND_LICENSE_KEY}"
           image: image-registry.openshift-image-registry.svc:5000/${PROJECT_NAME}/discourse:latest
