@@ -673,7 +673,7 @@ parameters:
   displayName: Discourse mail server
   name: SMTP_URL
   required: true
-  value: smtp.osci.com
+  value: smtp.osci.io
 
 - description: Maxmind IP Reverse Look Up Key
   displayName: Maxmind IP Reverse Look Up Key
