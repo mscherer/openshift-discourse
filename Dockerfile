@@ -14,7 +14,7 @@ ENV RUBY_VERSION="${RUBY_MAJOR_VERSION}.${RUBY_MINOR_VERSION}" \
     RUBY_SCL_NAME_VERSION="${RUBY_MAJOR_VERSION}${RUBY_MINOR_VERSION}"
 
 # Nginx env stuff
-ENV NGINX_CONFIGURATION_PATH=${APP_ROOT}/etc/nginx.d 
+ENV NGINX_CONFIGURATION_PATH=${APP_ROOT}/etc/nginx 
 #    NGINX_CONF_PATH=/etc/opt/rh/rh-nginx${NGINX_SHORT_VER}/nginx/nginx.conf \
 #    NGINX_DEFAULT_CONF_PATH=${APP_ROOT}/etc/nginx.default.d \
 #    NGINX_CONTAINER_SCRIPTS_PATH=/usr/share/container-scripts/nginx \
