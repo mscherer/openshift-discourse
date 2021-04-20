@@ -210,6 +210,8 @@ objects:
         - env:
           - name: DISCOURSE_SITE_URL
             value: https://${APPLICATION_DOMAIN}
+          - name: PUMA_WORKERS
+            value: '2'
           - name: DISCOURSE_DB_TYPE
             value: postgresql
           - name: DISCOURSE_DB_HOST
@@ -638,11 +640,6 @@ parameters:
   from: '[a-zA-Z0-9]{16}'
   generate: expression
   name: DATABASE_PASSWORD
-
-- description: The custom PyPi index URL
-  displayName: Custom PyPi Index URL
-  name: PIP_INDEX_URL
-  value: ''
 
 - description: Version of Redis image to be used (3.2 or latest).
   displayName: Version of Redis Image
