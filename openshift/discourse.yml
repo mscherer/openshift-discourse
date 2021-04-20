@@ -47,7 +47,7 @@ objects:
   metadata:
     name: ${NAME}
   spec:
-    host: ${APPLICATION_DOMAIN}
+    host: ''
     to:
       kind: Service
       name: ${NAME}
@@ -183,7 +183,7 @@ objects:
         containers:
         - env:
           - name: DISCOURSE_SITE_URL
-            value: https://${APPLICATION_DOMAIN}
+            value: http://${PROJECT_NAME}.apps.ospo-osci.z3b1.p1.openshiftapps.com/
           image: image-registry.openshift-image-registry.svc:5000/${PROJECT_NAME}/discourse:latest
           livenessProbe:
             httpGet:
@@ -209,7 +209,7 @@ objects:
             name: discourse-data
         - env:
           - name: DISCOURSE_SITE_URL
-            value: https://${APPLICATION_DOMAIN}
+            value: http://${PROJECT_NAME}.apps.ospo-osci.z3b1.p1.openshiftapps.com/
           - name: PUMA_WORKERS
             value: '2'
           - name: DISCOURSE_DB_TYPE
@@ -613,11 +613,11 @@ parameters:
   value: v2.6.2 
 
 
-- description: The exposed hostname that will route to the Nginx-to-Rails service, if left
-    blank a value will be defaulted.
-  displayName: Application Hostname
-  name: APPLICATION_DOMAIN
-  value: http://${PROJECT_NAME}.apps.ospo-osci.z3b1.p1.openshiftapps.com/
+#- description: The exposed hostname that will route to the Nginx-to-Rails service, if left
+#    blank a value will be defaulted.
+#  displayName: Application Hostname
+#  name: APPLICATION_DOMAIN
+#  value: http://${PROJECT_NAME}.apps.ospo-osci.z3b1.p1.openshiftapps.com/
 
 # - description: Github trigger secret.  A difficult to guess string encoded as part
 #     of the webhook URL.  Not encrypted.
