@@ -610,14 +610,14 @@ parameters:
     are not using the default branch.
   displayName: Git Reference
   name: SOURCE_REPOSITORY_REF
-  tag: v2.6.2 
+  value: v2.6.2 
 
 
 - description: The exposed hostname that will route to the Nginx-to-Rails service, if left
     blank a value will be defaulted.
   displayName: Application Hostname
   name: APPLICATION_DOMAIN
-  value: ''
+  value: http://${PROJECT_NAME}.apps.ospo-osci.z3b1.p1.openshiftapps.com/
 
 # - description: Github trigger secret.  A difficult to guess string encoded as part
 #     of the webhook URL.  Not encrypted.
