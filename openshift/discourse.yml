@@ -117,6 +117,8 @@ objects:
         env:
           - name: APPLICATION_DOMAIN
             value: ${APPLICATION_DOMAIN}
+          - name: DISCOURSE_SITE_URL
+            value: ${APPLICATION_DOMAIN}
           - name: DISCOURSE_DB_HOST
             value: postgresql
           - name: DISCOURSE_DB_NAME
