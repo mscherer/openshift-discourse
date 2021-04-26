@@ -47,7 +47,7 @@ objects:
   metadata:
     name: ${NAME}
   spec:
-    host: ''
+    host: ${APPLICATION_DOMAIN}
     to:
       kind: Service
       name: ${NAME}
@@ -115,6 +115,8 @@ objects:
     strategy:
       sourceStrategy:
         env:
+          - name: APPLICATION_DOMAIN
+            value: ${APPLICATION_DOMAIN}
           - name: DISCOURSE_DB_HOST
             value: postgresql
           - name: DISCOURSE_DB_NAME
@@ -613,11 +615,11 @@ parameters:
   value: v2.6.2 
 
 
-#- description: The exposed hostname that will route to the Nginx-to-Rails service, if left
-#    blank a value will be defaulted.
-#  displayName: Application Hostname
-#  name: APPLICATION_DOMAIN
-#  value: http://${PROJECT_NAME}.apps.ospo-osci.z3b1.p1.openshiftapps.com/
+- description: The exposed hostname that will route to the Nginx-to-Rails service, if left
+    blank a value will be defaulted.
+  displayName: Application Hostname
+  name: APPLICATION_DOMAIN
+#  value: http://${openshift.project()}.apps.ospo-osci.z3b1.p1.openshiftapps.com/
 
 # - description: Github trigger secret.  A difficult to guess string encoded as part
 #     of the webhook URL.  Not encrypted.

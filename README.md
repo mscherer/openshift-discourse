@@ -3,15 +3,15 @@ This is an automated deploment of discourse for OpenShift
 
 To get it working (with the optional email environment variable):
 
-`oc process -f openshift/discourse.yml -p PROJECT_NAME=<project-name> -e MAIL_FROM=<you>@redhat.com | oc create -f -`
+`oc process -f openshift/discourse.yml -p PROJECT_NAME=<project-name> <APPLICATION_DOMAIN> -e MAIL_FROM=<you>@redhat.com | oc create -f -`
 
 or if not using the commented out cronjob:
 
-`oc new-app -f openshift/discourse.yml -p PROJECT_NAME=<project-name>`
+`oc new-app -f openshift/discourse.yml -p PROJECT_NAME=<project-name> APPLICATION_DOMAIN=http://<>`
 
 and possibly add admin email account for set up after specifying the correct smpt server in the template file:
 
-`oc new-app -f openshift/discourse.yml -p PROJECT_NAME=<project-name> DISCOURSE_ADMIN_EMAILS=<> DISCOURSE_ADMIN_EMAILS_KEY=<>
+`oc new-app -f openshift/discourse.yml -p PROJECT_NAME=<project-name> DISCOURSE_ADMIN_EMAILS=<> DISCOURSE_ADMIN_EMAILS_KEY=<> APPLICATION_DOMAIN=http://<>`
 
 The postgresql extensions needed by discourse need to be done manually:
 
