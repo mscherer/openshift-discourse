@@ -3,6 +3,7 @@ FROM centos/s2i-base-centos8
 # This image provides a Ruby environment you can use to run your Ruby
 # applications.
 
+EXPOSE 1587
 EXPOSE 8080
 EXPOSE 8081
 

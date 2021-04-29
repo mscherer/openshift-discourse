@@ -43,6 +43,20 @@ objects:
       name: ${NAME}
 
 - apiVersion: v1
+  kind: Service
+  metadata:
+    annotations:
+      description: SMTP port
+    name: SMTP
+  spec: 
+    ports:
+    - name: SMTP
+      port: 587
+      targetPort: 1587
+    selector:
+      name: ${NAME}
+
+- apiVersion: v1
   kind: Route
   metadata:
     name: ${NAME}
@@ -115,9 +129,7 @@ objects:
     strategy:
       sourceStrategy:
         env:
-          - name: APPLICATION_DOMAIN
-            value: ${APPLICATION_DOMAIN}
-          - name: DISCOURSE_SITE_URL
+          - name: DISCOURSE_HOSTNAME
             value: ${APPLICATION_DOMAIN}
           - name: DISCOURSE_DB_HOST
             value: postgresql
@@ -145,9 +157,17 @@ objects:
             value: 'true'
           - name: DISCOURSE_ADMIN_EMAILS
             value: ${DISCOURSE_ADMIN_EMAILS}
+          - name: SMTP_USER
+            value: ${SMTP_USER}
           - name: DISCOURSE_ADMIN_EMAILS_KEY
             value: ${DISCOURSE_ADMIN_EMAILS_KEY}
+          - name: SMTP_PASSWORD
+            value: ${DISCOURSE_ADMIN_EMAILS_KEY}
           - name: SMTP_URL
+            value: ${SMTP_URL}
+          - name: SMTP_HOST
+            value: ${SMTP_URL}
+          - name: SMTP_HOSTNAME
             value: ${SMTP_URL}
           #- name: DISCOURSE_MAXMIND_LICENSE_KEY
           #  value: '${DISCOURSE_MAXMIND_LICENSE_KEY}'
@@ -212,8 +232,8 @@ objects:
           - mountPath: /var/lib/discourse/
             name: discourse-data
         - env:
-          - name: DISCOURSE_SITE_URL
-            value: http://${PROJECT_NAME}.apps.ospo-osci.z3b1.p1.openshiftapps.com/
+          - name: DISCOURSE_HOSTNAME
+            value: ${APPLICATION_DOMAIN}
           - name: PUMA_WORKERS
             value: '2'
           - name: DISCOURSE_DB_TYPE
@@ -674,7 +694,7 @@ parameters:
   displayName: Discourse mail server
   name: SMTP_URL
   required: true
-  value: smtp.osci.io
+  value: mx1.osci.io
 
 - description: Maxmind IP Reverse Look Up Key
   displayName: Maxmind IP Reverse Look Up Key
@@ -682,8 +702,15 @@ parameters:
   required: true
   value: TH15154F4K3K3Y
 
+- name: SMTP_PORT
+  value: 1587
+
 - name: PROJECT_NAME
 
 - name: DISCOURSE_ADMIN_EMAILS
 
 - name: DISCOURSE_ADMIN_EMAILS_KEY
+
+- name: SMTP_USER
+
+- name: SMTP_PASSWORD

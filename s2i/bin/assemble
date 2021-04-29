@@ -64,7 +64,7 @@ if [[ "$RAILS_ENV" == "production" || "$RACK_ENV" == "production" ]]; then
   rake_assets_precompile
 fi
 
-envsubst '${DISCOURSE_SITE_URL}' < ${NGINX_CONFIGURATION_PATH}/conf.d/discourse.conf > ${NGINX_CONFIGURATION_PATH}/conf.d/discourse.conf.tmp
+envsubst '${DISCOURSE_HOSTNAME}' < ${NGINX_CONFIGURATION_PATH}/conf.d/discourse.conf > ${NGINX_CONFIGURATION_PATH}/conf.d/discourse.conf.tmp
 mv ${NGINX_CONFIGURATION_PATH}/conf.d/discourse.conf.tmp ${NGINX_CONFIGURATION_PATH}/conf.d/discourse.conf
 
 # Unset environment variables
