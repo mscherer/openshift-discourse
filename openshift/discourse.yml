@@ -43,20 +43,6 @@ objects:
       name: ${NAME}
 
 - apiVersion: v1
-  kind: Service
-  metadata:
-    annotations:
-      description: SMTP port
-    name: SMTP
-  spec: 
-    ports:
-    - name: SMTP
-      port: 587
-      targetPort: 1587
-    selector:
-      name: ${NAME}
-
-- apiVersion: v1
   kind: Route
   metadata:
     name: ${NAME}
@@ -155,22 +141,6 @@ objects:
             value: 'true'
           - name: DISCOURSE_SERVE_STATIC_ASSETS
             value: 'true'
-          - name: DISCOURSE_ADMIN_EMAILS
-            value: ${DISCOURSE_ADMIN_EMAILS}
-          - name: SMTP_USER
-            value: ${SMTP_USER}
-          - name: DISCOURSE_ADMIN_EMAILS_KEY
-            value: ${DISCOURSE_ADMIN_EMAILS_KEY}
-          - name: SMTP_PASSWORD
-            value: ${DISCOURSE_ADMIN_EMAILS_KEY}
-          - name: SMTP_URL
-            value: ${SMTP_URL}
-          - name: SMTP_HOST
-            value: ${SMTP_URL}
-          - name: SMTP_HOSTNAME
-            value: ${SMTP_URL}
-          #- name: DISCOURSE_MAXMIND_LICENSE_KEY
-          #  value: '${DISCOURSE_MAXMIND_LICENSE_KEY}'
         from:
           kind: ImageStreamTag
           name: s2i-imagemagick-nodejs:latest
@@ -206,8 +176,10 @@ objects:
       spec:
         containers:
         - env:
-          - name: DISCOURSE_SITE_URL
-            value: http://${PROJECT_NAME}.apps.ospo-osci.z3b1.p1.openshiftapps.com/
+          - name: DISCOURSE_DB_HOST
+          - name: DISCOURSE_DB_PASSWORD
+          - name: DISCOURSE_REDIS_PASSWORD
+          - name: DISCOURSE_REDIS_HOST
           image: image-registry.openshift-image-registry.svc:5000/${PROJECT_NAME}/discourse:latest
           livenessProbe:
             httpGet:
@@ -232,8 +204,6 @@ objects:
           - mountPath: /var/lib/discourse/
             name: discourse-data
         - env:
-          - name: DISCOURSE_HOSTNAME
-            value: ${APPLICATION_DOMAIN}
           - name: PUMA_WORKERS
             value: '2'
           - name: DISCOURSE_DB_TYPE
@@ -268,12 +238,20 @@ objects:
             value: "true"
           - name: DISCOURSE_ADMIN_EMAILS
             value: ${DISCOURSE_ADMIN_EMAILS}
+          - name: DISCOURSE_SMTP_USER_NAME
+            value: ${SMTP_USER}
           - name: DISCOURSE_ADMIN_EMAILS_KEY
             value: ${DISCOURSE_ADMIN_EMAILS_KEY}
-          - name: SMTP_URL
-            value: ${SMTP_URL}
+          - name: DISCOURSE_SMTP_PASSWORD
+            value: ${SMTP_PASSWORD}
+          - name: DISCOURSE_SMTP_ADDRESS
+            value: ${SMTP_ADDRESS}
+          - name: DISCOURSE_SMTP_PORT
+            value: ${SMTP_PORT}
+          - name: SMTP_ENABLE_START_TLS
+            value: 'true'
           #- name: DISCOURSE_MAXMIND_LICENSE_KEY
-          #  value: "${DISCOURSE_MAXMIND_LICENSE_KEY}"
+          #  value: '${DISCOURSE_MAXMIND_LICENSE_KEY}'
           image: image-registry.openshift-image-registry.svc:5000/${PROJECT_NAME}/discourse:latest
           livenessProbe:
             httpGet:
@@ -690,9 +668,9 @@ parameters:
   required: true
   value: 1Gi
 
-- description: SMTP mail server
-  displayName: Discourse mail server
-  name: SMTP_URL
+- description: SMTP mail server subdomain
+  displayName: Discourse mail server domain
+  name: SMTP_ADDRESS
   required: true
   value: mx1.osci.io
 
@@ -703,7 +681,7 @@ parameters:
   value: TH15154F4K3K3Y
 
 - name: SMTP_PORT
-  value: 1587
+  value: '587'
 
 - name: PROJECT_NAME
 
