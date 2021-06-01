@@ -25,6 +25,10 @@ objects:
     database-password: ${DATABASE_PASSWORD}
     database-user: ${DATABASE_USER}
     redis-password: ${REDIS_PASSWORD}
+    site-admin-password: ${DISCOURSE_ADMIN_EMAILS_KEY}
+    site-admin-user: ${DISCOURSE_ADMIN_EMAILS}
+    smtp-password: ${SMTP_PASSWORD}
+    smtp-user: ${SMTP_USER}
 
 - apiVersion: v1
   kind: Service
@@ -132,7 +136,10 @@ objects:
                 name: '${NAME}'
                 key: database-password
           - name: DISCOURSE_REDIS_PASSWORD
-            value: '${REDIS_PASSWORD}'
+            valueFrom:
+              secretKeyRef:
+                name: '${NAME}'
+                key: redis-password
           - name: DISCOURSE_REDIS_HOST
             value: redis
           - name: RAILS_ENV
@@ -176,6 +183,88 @@ objects:
       spec:
         containers:
         - env:
+          - name: PUMA_WORKERS
+            value: '2'
+          - name: DISCOURSE_DB_TYPE
+            value: postgresql
+          - name: DISCOURSE_DB_HOST
+            value: postgresql
+          - name: DISCOURSE_DB_NAME
+            value: discourse
+          - name: DISCOURSE_DB_USER
+            valueFrom:
+              secretKeyRef:
+                name: discourse
+                key: database-user
+          - name: DISCOURSE_DB_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: discourse
+                key: database-password
+          - name: APP_MODULE
+            value: app
+          - name: DISCOURSE_REDIS_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: '${NAME}'
+                key: redis-password
+          - name: DISCOURSE_REDIS_HOST
+            value: redis
+          - name: RAILS_ENV
+            value: production
+          - name: RAILS_SERVE_STATIC_FILES
+            value: 'true'
+          - name: DISCOURSE_SERVE_STATIC_ASSETS
+            value: 'true'
+          - name: DISCOURSE_ADMIN_EMAILS
+            valueFrom:
+              secretKeyRef:
+                name: '${NAME}'
+                key: site-admin-user
+          - name: DISCOURSE_SMTP_USER_NAME
+            valueFrom:
+              secretKeyRef:
+                name: '${NAME}'
+                key: smtp-user
+          - name: DISCOURSE_ADMIN_EMAILS_KEY
+            valueFrom:
+              secretKeyRef:
+                name: '${NAME}'
+                key: site-admin-password
+          - name: DISCOURSE_SMTP_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: '${NAME}'
+                key: smtp-password
+          - name: DISCOURSE_SMTP_ADDRESS
+            value: mx1.osci.io
+          - name: DISCOURSE_SMTP_PORT
+            value: '587'
+          - name: SMTP_ENABLE_START_TLS
+            value: 'true'
+          command: ['sh', '-c', 'bundler exec sidekiq -C config/sidekiq.yml']
+          image: image-registry.openshift-image-registry.svc:5000/${PROJECT_NAME}/discourse:latest
+          volumeMounts:
+          - mountPath: ~/public/uploads/ # /opt/app-root/src/public/uploads/
+            name: discourse-uploads
+          name: discourse-sidekiq
+#         readinessProbe:
+#           exec:
+#             command: ['sh', '-c', 'cat /discourse/tmp/pids/sidekiq.pid']
+#           failureThreshold: 3
+#           initialDelaySeconds: 60
+#           periodSeconds: 10
+#           successThreshold: 1
+#           timeoutSeconds: 10
+#         livenessProbe:
+#           exec:
+#             command: ['sh', '-c', 'cat /discourse/tmp/pids/sidekiq.pid']
+#           failureThreshold: 3
+#           initialDelaySeconds: 300
+#            periodSeconds: 10
+#            successThreshold: 1
+#            timeoutSeconds: 10
+        - env:
           - name: DISCOURSE_DB_HOST
           - name: DISCOURSE_DB_PASSWORD
           - name: DISCOURSE_REDIS_PASSWORD
@@ -201,8 +290,8 @@ objects:
             limits:
               memory: ${MEMORY_LIMIT}
           volumeMounts:
-          - mountPath: /var/lib/discourse/
-            name: discourse-data
+          - mountPath: ~/public/uploads/ # /opt/app-root/src/public/uploads/
+            name: discourse-uploads
         - env:
           - name: PUMA_WORKERS
             value: '2'
@@ -272,16 +361,16 @@ objects:
             limits:
               memory: ${MEMORY_LIMIT}
           volumeMounts:
-          - mountPath: /var/lib/discourse/
-            name: discourse-data
+          - mountPath: ~/public/uploads
+            name: discourse-uploads
         initContainers:
         - name: init-database-table
           image: image-registry.openshift-image-registry.svc:5000/${PROJECT_NAME}/discourse:latest
           command: ['sh', '-c', 'pwd && ls && rake db:migrate --trace']
         volumes:
-        - name: discourse-data
+        - name: discourse-uploads
           persistentVolumeClaim:
-            claimName: discourse-data
+            claimName: discourse-uploads
     triggers:
     - imageChangeParams:
         automatic: true
@@ -296,7 +385,7 @@ objects:
 - apiVersion: v1
   kind: PersistentVolumeClaim
   metadata:
-    name: discourse-data
+    name: discourse-uploads
   spec:
     accessModes:
     - ReadWriteOnce

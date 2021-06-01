@@ -3,7 +3,6 @@ FROM centos/s2i-base-centos8
 # This image provides a Ruby environment you can use to run your Ruby
 # applications.
 
-EXPOSE 1587
 EXPOSE 8080
 EXPOSE 8081
 
@@ -110,8 +109,11 @@ RUN chown -R 1001:0 ${APP_ROOT} && chmod -R ug+rwx ${APP_ROOT} #&& \
 #    rpm-file-permissions
 
 RUN touch /run/nginx.pid \
- && chmod -R 777 /run/nginx.pid
+  && chmod -R 777 /run/nginx.pid
 RUN chown -R 1001:1001 /run/nginx.pid
+
+# initialize dir needed for puma/sidekiq persistent volume
+RUN mkdir ${APP_ROOT}/public/uploads/
 
 USER 1001
 
