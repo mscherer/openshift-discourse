@@ -11,7 +11,12 @@ ENV RUBY_MAJOR_VERSION=2 \
 
 # Ruby env stuff
 ENV RUBY_VERSION="${RUBY_MAJOR_VERSION}.${RUBY_MINOR_VERSION}" \
-    RUBY_SCL_NAME_VERSION="${RUBY_MAJOR_VERSION}${RUBY_MINOR_VERSION}"
+    RUBY_SCL_NAME_VERSION="${RUBY_MAJOR_VERSION}${RUBY_MINOR_VERSION}" \
+# NODEJS env stuff
+    NODEJS_VERSION=14 \
+    NPM_RUN=start \
+    NAME=nodejs \
+    NPM_CONFIG_PREFIX=$HOME/.npm-global
 
 # Nginx env stuff
 ENV NGINX_CONFIGURATION_PATH=${APP_ROOT}/etc/nginx 
@@ -66,6 +71,15 @@ RUN npm install -g uglify-js && npm install -g svgo
 RUN mkdir -p /var/nginx/cache
 RUN /usr/bin/chmod -R 770 /var/{lib,log}/nginx/ && chown -R :root /var/{lib,log}/nginx/
 
+# install nodejs dependencies for the rest of discourse (not just the static asset compilation)
+#RUN yum install -y centos-release-scl-rh 
+RUN MODULE_DEPS="make gcc gcc-c++ git openssl-devel" && \
+    INSTALL_PKGS="$MODULE_DEPS nodejs npm nodejs-nodemon nss_wrapper" #rh-nodejs${NODEJS_VERSION} rh-nodejs${NODEJS_VERSION}-npm rh-nodejs${NODEJS_VERSION}-nodejs-nodemon nss_wrapper" && \
+    ln -s /usr/lib/node_modules/nodemon/bin/nodemon.js /usr/bin/nodemon && \
+    yum install -y --setopt=tsflags=nodocs $INSTALL_PKGS && \
+    rpm -V $INSTALL_PKGS && \
+    yum -y clean all
+
 # Copy Nginx discourse config files
 COPY ./nginx.global.conf ${NGINX_CONFIGURATION_PATH}/nginx.conf
 COPY ./nginx.conf ${NGINX_CONFIGURATION_PATH}/conf.d/discourse.conf
@@ -109,14 +123,12 @@ RUN chown -R 1001:0 ${APP_ROOT} && chmod -R ug+rwx ${APP_ROOT} #&& \
 #    rpm-file-permissions
 
 RUN touch /run/nginx.pid \
-  && chmod -R 777 /run/nginx.pid
-RUN chown -R 1001:1001 /run/nginx.pid
-
-# initialize dir needed for puma/sidekiq persistent volume
-RUN mkdir ${APP_ROOT}/public/uploads/
+  # initialize dir needed for puma/sidekiq persistent volume
+  && mkdir ${APP_ROOT}/public/uploads/ \
+  && chmod -R 666 /run/nginx.pid \
+  && chown -R 1001:1001 /run/nginx.pid
 
 USER 1001
-
 
 # Set the default CMD to print the usage of the language image
 CMD $STI_SCRIPTS_PATH/usage

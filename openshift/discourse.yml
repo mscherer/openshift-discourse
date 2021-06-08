@@ -245,7 +245,7 @@ objects:
           command: ['sh', '-c', 'bundler exec sidekiq -C config/sidekiq.yml']
           image: image-registry.openshift-image-registry.svc:5000/${PROJECT_NAME}/discourse:latest
           volumeMounts:
-          - mountPath: ~/public/uploads/ # /opt/app-root/src/public/uploads/
+          - mountPath: /opt/app-root/src/public/uploads/
             name: discourse-uploads
           name: discourse-sidekiq
 #         readinessProbe:
@@ -290,7 +290,7 @@ objects:
             limits:
               memory: ${MEMORY_LIMIT}
           volumeMounts:
-          - mountPath: ~/public/uploads/ # /opt/app-root/src/public/uploads/
+          - mountPath: /opt/app-root/src/public/uploads/
             name: discourse-uploads
         - env:
           - name: PUMA_WORKERS
@@ -361,7 +361,7 @@ objects:
             limits:
               memory: ${MEMORY_LIMIT}
           volumeMounts:
-          - mountPath: ~/public/uploads
+          - mountPath: /opt/app-root/src/public/uploads/
             name: discourse-uploads
         initContainers:
         - name: init-database-table
