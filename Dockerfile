@@ -80,6 +80,13 @@ RUN MODULE_DEPS="make gcc gcc-c++ git openssl-devel" && \
     rpm -V $INSTALL_PKGS && \
     yum -y clean all
 
+RUN yum install -y jemalloc && \
+    yum -y clean all
+
+RUN rpm --import https://dl.yarnpkg.com/rpm/pubkey.gpg && \
+    curl -sL https://dl.yarnpkg.com/rpm/yarn.repo -o /etc/yum.repos.d/yarn.repo && \
+    dnf install -y yarn --disablerepo=AppStream 
+
 # Copy Nginx discourse config files
 COPY ./nginx.global.conf ${NGINX_CONFIGURATION_PATH}/nginx.conf
 COPY ./nginx.conf ${NGINX_CONFIGURATION_PATH}/conf.d/discourse.conf
