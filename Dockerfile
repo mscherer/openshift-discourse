@@ -90,6 +90,7 @@ RUN rpm --import https://dl.yarnpkg.com/rpm/pubkey.gpg && \
 # Copy Nginx discourse config files
 COPY ./nginx.global.conf ${NGINX_CONFIGURATION_PATH}/nginx.conf
 COPY ./nginx.conf ${NGINX_CONFIGURATION_PATH}/conf.d/discourse.conf
+COPY ./sidekiq.yml $HOME/config/sidekiq.yml
 
 # Copy Puma socket file
 COPY ./puma.sock /opt/app-root/src/tmp/sockets/puma.sock
