@@ -1,5 +1,5 @@
 def get_max_memory()
-          return ENV['MEMORY_LIMIT_IN_BYTES'].to_i if ENV.has_key? 'MEMORY_LIMIT_IN_BYTES'
+    return ENV['MEMORY_LIMIT_IN_BYTES'].to_i if ENV.has_key? 'MEMORY_LIMIT_IN_BYTES'
 
           # Assume unlimited memory. 0.size is the number of bytes a Ruby
           # Fixnum class can hold. One bit is used for sign and one is used
@@ -7,54 +7,53 @@ def get_max_memory()
           # That's why we subtract two bits. This expresion should therefore be
           # the largest signed Fixnum possible.
           (2 ** (8*0.size - 2) - 1)
-      end
+end
 
-      def get_memory_per_worker()
-          bytes = ENV.fetch('MEMORY_BYTES_PER_WORKER', '0').to_i
-          if bytes == 0
-              # Comment describing rationale for choosing default of 256MiB/worker is below.
-              bytes = 256 * (2**20)
-          end
-          bytes
-      end
+def get_memory_per_worker()
+    bytes = ENV.fetch('MEMORY_BYTES_PER_WORKER', '0').to_i
+    if bytes == 0
+        # Comment describing rationale for choosing default of 256MiB/worker is below.
+        bytes = 256 * (2**20)
+    end
+    bytes
+end
 
-      # thread defaults as per https://github.com/puma/puma#thread-pool
-      def get_min_threads()
-          ENV.fetch('PUMA_MIN_THREADS', '0').to_i
-      end
+# thread defaults as per https://github.com/puma/puma#thread-pool
+def get_min_threads()
+    ENV.fetch('PUMA_MIN_THREADS', '0').to_i
+end
 
-      def get_max_threads()
-          ENV.fetch('PUMA_MAX_THREADS', '16').to_i
-      end
+def get_max_threads()
+    ENV.fetch('PUMA_MAX_THREADS', '16').to_i
+end
 
-      # Determine the maximum number of workers that are allowed by the available
-      # memory.  Puma documentation recommends the maximum number of workers to be
-      # set to the number of cores.
-      # Unless we're specifically tuned otherwise, allow one worker process per 256MiB
-      # memory, to a maximum of 1 worker / core.  Hopefully that'll be a reasonable
-      # starting point for average apps; if not, it's all tunable.  The simple
-      # OpenShift ruby/rails sample app currently requires approx. 60MiB +
-      # 70MiB/worker before taking its first request, so hopefully a default of
-      # 256MiB/worker will give other simple apps reasonable default headroom.
-      def get_workers()
-          return ENV['PUMA_WORKERS'].to_i if ENV.has_key? 'PUMA_WORKERS'
+# Determine the maximum number of workers that are allowed by the available
+# memory.  Puma documentation recommends the maximum number of workers to be
+# set to the number of cores.
+# Unless we're specifically tuned otherwise, allow one worker process per 256MiB
+# memory, to a maximum of 1 worker / core.  Hopefully that'll be a reasonable
+# starting point for average apps; if not, it's all tunable.  The simple
+# OpenShift ruby/rails sample app currently requires approx. 60MiB +
+# 70MiB/worker before taking its first request, so hopefully a default of
+# 256MiB/worker will give other simple apps reasonable default headroom.
+def get_workers()
+    return ENV['PUMA_WORKERS'].to_i if ENV.has_key? 'PUMA_WORKERS'
 
-          cores = ENV.fetch('NUMBER_OF_CORES', '1').to_i
-          max_workers = get_max_memory() / get_memory_per_worker()
+    cores = ENV.fetch('NUMBER_OF_CORES', '1').to_i
+    max_workers = get_max_memory() / get_memory_per_worker()
 
-          [cores, max_workers].min
-      end
+    [cores, max_workers].min
+end
 
-      environment ENV['RACK_ENV'] || ENV['RAILS_ENV'] || 'production'
-      threads     get_min_threads(), get_max_threads()
-      workers     get_workers()
+environment ENV['RACK_ENV'] || ENV['RAILS_ENV'] || 'production'
+threads     get_min_threads(), get_max_threads()
+workers     get_workers()
 
-      application_path="/discourse"
-      directory application_path
-      environment 'production'
-      daemonize false
-      pidfile "#{application_path}/tmp/pids/puma.pid"
-      state_path "#{application_path}/tmp/pids/puma.state"
-      preload_app!
-      bind "tcp://0.0.0.0:8080"
-
+application_path="/opt/app-root/src"
+directory application_path
+environment 'production'
+daemonize false
+pidfile "#{application_path}/tmp/pids/puma.pid"
+state_path "#{application_path}/tmp/pids/puma.state"
+preload_app!
+bind "tcp://0.0.0.0:8080"
