@@ -17,18 +17,21 @@ check_number PUMA_WORKERS     "${PUMA_WORKERS:-0}"
 check_number PUMA_MIN_THREADS "${PUMA_MIN_THREADS:-0}"
 check_number PUMA_MAX_THREADS "${PUMA_MAX_THREADS:-0}"
 
+
 export RACK_ENV=${RACK_ENV:-"production"}
 
 if is_puma_installed; then
   export_vars=$(cgroup-limits) ; export $export_vars
 
-echo "---> Creating specified admin user ..."
-rake admin:create <<END
-$DISCOURSE_ADMIN_EMAILS
-$DISCOURSE_ADMIN_EMAILS_KEY
-$DISCOURSE_ADMIN_EMAILS_KEY
-y
-END
+if (!empty($DISCOURSE_ADMIN_EMAILS)
+    echo "---> Creating specified admin user ..."
+    rake admin:create << END 
+        $DISCOURSE_ADMIN_EMAILS
+        $DISCOURSE_ADMIN_EMAILS_KEY
+        $DISCOURSE_ADMIN_EMAILS_KEY
+        y
+    END
+fi
 
   exec bundle exec "puma --config ../etc/puma.cfg"
 else

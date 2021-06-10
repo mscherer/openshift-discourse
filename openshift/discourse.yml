@@ -757,7 +757,7 @@ parameters:
   required: true
   value: 1Gi
 
-- description: SMTP mail server subdomain
+- description: SMTP mail server domain
   displayName: Discourse mail server domain
   name: SMTP_ADDRESS
   required: true
@@ -770,14 +770,30 @@ parameters:
   value: TH15154F4K3K3Y
 
 - name: SMTP_PORT
+  descritpion: The SMTP port for discourse instance to email through
+  displayName: SMTP port
   value: '587'
 
 - name: PROJECT_NAME
+  descritpion: The OpenShift/Kubernetes Project/Namespace name, respectively
+  displayName: Project name
+  required: true
 
 - name: DISCOURSE_ADMIN_EMAILS
+  descritpion: Discourse instance's default admin users (if not admins it will default to a set up screen upon successful deployment)
+  displayName: Discourse admin emails
+  required: false
 
 - name: DISCOURSE_ADMIN_EMAILS_KEY
-
+  description: Discourse instance's default admin passwords (required if using default admins)
+  displayName: Discourse admin Key
+  required: false
+  
 - name: SMTP_USER
+  descritpion: The SMTP server's user for discourse to be able to send emails
+  displayName: Discourse SMTP user
 
 - name: SMTP_PASSWORD
+  descritpion: The SMTP	server's user password to be able to send emails
+  displayName: Discourse SMTP user password
+

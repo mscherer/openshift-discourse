@@ -65,36 +65,36 @@ RUN yum -y module enable ruby:$RUBY_VERSION && \
     yum -y clean all --enablerepo='*' && \
     rpm -V ${INSTALL_PKGS}
 
-RUN yum install -y nginx ImageMagick brotli; yum clean all
-
+# Install Discourse Dependencies
+RUN dnf install -y postgresql ImageMagick brotli; yum clean all
 RUN npm install -g uglify-js && npm install -g svgo
-RUN mkdir -p /var/nginx/cache
-RUN /usr/bin/chmod -R 770 /var/{lib,log}/nginx/ && chown -R :root /var/{lib,log}/nginx/
+RUN rpm --import https://dl.yarnpkg.com/rpm/pubkey.gpg && \
+    curl -sL https://dl.yarnpkg.com/rpm/yarn.repo -o /etc/yum.repos.d/yarn.repo && \
+    dnf install -y yarn --disablerepo=AppStream
 
 # install nodejs dependencies for the rest of discourse (not just the static asset compilation)
-#RUN yum install -y centos-release-scl-rh 
-RUN MODULE_DEPS="make gcc gcc-c++ git openssl-devel" && \
+#RUN yum install -y centos-release-scl-rh
+RUN MODULE_DEPS="make gcc gcc-c++ git openssl-devel jemalloc" && \
     INSTALL_PKGS="$MODULE_DEPS nodejs npm nodejs-nodemon nss_wrapper" #rh-nodejs${NODEJS_VERSION} rh-nodejs${NODEJS_VERSION}-npm rh-nodejs${NODEJS_VERSION}-nodejs-nodemon nss_wrapper" && \
     ln -s /usr/lib/node_modules/nodemon/bin/nodemon.js /usr/bin/nodemon && \
     yum install -y --setopt=tsflags=nodocs $INSTALL_PKGS && \
     rpm -V $INSTALL_PKGS && \
     yum -y clean all
 
-RUN yum install -y jemalloc && \
-    yum -y clean all
 
-RUN rpm --import https://dl.yarnpkg.com/rpm/pubkey.gpg && \
-    curl -sL https://dl.yarnpkg.com/rpm/yarn.repo -o /etc/yum.repos.d/yarn.repo && \
-    dnf install -y yarn --disablerepo=AppStream 
+# Install nginx
+RUN dnf install -y nginx
+RUN mkdir -p /var/nginx/cache
+RUN /usr/bin/chmod -R 770 /var/{lib,log}/nginx/ && chown -R :root /var/{lib,log}/nginx/
 
-# Copy Nginx discourse config files
+# Copy Nginx, Discourse and Puma config files
 COPY ./nginx.global.conf ${NGINX_CONFIGURATION_PATH}/nginx.conf
 COPY ./nginx.conf ${NGINX_CONFIGURATION_PATH}/conf.d/discourse.conf
 COPY ./sidekiq.yml $HOME/../etc/sidekiq.yml
 COPY ./puma.rb $HOME/../etc/puma.rb
 
 # Copy Puma socket file
-COPY ./puma.sock /opt/app-root/src/tmp/sockets/puma.sock
+#COPY ./puma.sock /opt/app-root/src/tmp/sockets/puma.sock
 
 # This should allow nginx-sidecar to start without priviledge escilation
 RUN touch /run/nginx.pid \
@@ -131,11 +131,11 @@ RUN chown -R 1001:0 ${APP_ROOT} && chmod -R ug+rwx ${APP_ROOT} #&& \
 #    chown -R 1001:0 /var/run && \
 #    rpm-file-permissions
 
-RUN touch /run/nginx.pid \
+
   # initialize dir needed for puma/sidekiq persistent volume
-  && mkdir ${APP_ROOT}/public/uploads/ \
-  && chmod -R 666 /run/nginx.pid \
-  && chown -R 1001:1001 /run/nginx.pid
+RUN  mkdir ${APP_ROOT}/public/uploads/ \
+ &&  chmod -R 666 /run/nginx.pid \
+ &&  chown -R 1001:1001 /run/nginx.pid
 
 USER 1001
 
