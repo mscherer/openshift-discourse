@@ -1,5 +1,10 @@
 #!/bin/bash
 
+set rake_input="$DISCOURSE_ADMIN_EMAILS\n
+$DISCOURSE_ADMIN_EMAILS_KEY\n
+$DISCOURSE_ADMIN_EMAILS_KEY\n
+y\n"
+
 function is_puma_installed() {
   [ ! -f Gemfile.lock ] && return 1
   grep ' puma ' Gemfile.lock >/dev/null
@@ -25,12 +30,12 @@ if is_puma_installed; then
 
 if (!empty($DISCOURSE_ADMIN_EMAILS)
     echo "---> Creating specified admin user ..."
-    rake admin:create << END
-$DISCOURSE_ADMIN_EMAILS
-$DISCOURSE_ADMIN_EMAILS_KEY
-$DISCOURSE_ADMIN_EMAILS_KEY
-y
-END
+    rake admin:create <<-END
+    $DISCOURSE_ADMIN_EMAILS
+    $DISCOURSE_ADMIN_EMAILS_KEY
+    $DISCOURSE_ADMIN_EMAILS_KEY
+    y
+    END
 fi
 
   exec bundle exec "puma --config ../etc/puma.cfg"
