@@ -35,7 +35,7 @@ Use the Host/Port name with http:// in front of it to create and environment var
 
 ## To run this locally on an OpenShift CRC Virtual Machine:
 
-(Install OpenShift CRC){https://developers.redhat.com/products/codeready-containers/overview}.
+{Install OpenShift CRC}(https://developers.redhat.com/products/codeready-containers/overview).
 
 Once installed, run the `$ oc new-app` command from above and follow the same steps.
 
