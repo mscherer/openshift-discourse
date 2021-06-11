@@ -366,7 +366,7 @@ objects:
         initContainers:
         - name: init-database-table
           image: image-registry.openshift-image-registry.svc:5000/${PROJECT_NAME}/discourse:latest
-          command: ['sh', '-c', 'pwd && ls && rake db:migrate --trace && ./usr/libexec/s2i/initAdmins']
+          command: ['sh', '-c', 'pwd && ls && rake db:migrate --trace && $STI_SCRIPTS_PATH/initAdmins']
         volumes:
         - name: discourse-uploads
           persistentVolumeClaim:

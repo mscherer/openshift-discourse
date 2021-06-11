@@ -97,8 +97,8 @@ COPY ./puma.rb $HOME/../etc/puma.rb
 #COPY ./puma.sock /opt/app-root/src/tmp/sockets/puma.sock
 
 # This should allow nginx-sidecar to start without priviledge escilation
-RUN touch /run/nginx.pid \
- && chmod -R 666 /run/nginx.pid
+RUN touch /run/nginx.pid && \
+    chmod -R 666 /run/nginx.pid
 
 # Copy the S2I scripts from the specific language image to $STI_SCRIPTS_PATH
 COPY ./s2i/bin/ $STI_SCRIPTS_PATH
@@ -133,9 +133,9 @@ RUN chown -R 1001:0 ${APP_ROOT} && chmod -R ug+rwx ${APP_ROOT} #&& \
 
 
   # initialize dir needed for puma/sidekiq persistent volume
-RUN  mkdir ${APP_ROOT}/public/uploads/ \
- &&  chmod -R 666 /run/nginx.pid \
- &&  chown -R 1001:1001 /run/nginx.pid
+RUN  mkdir ${APP_ROOT}/public/uploads/ && \
+     chmod -R 666 /run/nginx.pid && \
+     chown -R 1001:1001 /run/nginx.pid
 
 USER 1001
 
