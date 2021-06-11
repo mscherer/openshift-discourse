@@ -28,16 +28,6 @@ export RACK_ENV=${RACK_ENV:-"production"}
 if is_puma_installed; then
   export_vars=$(cgroup-limits) ; export $export_vars
 
-if (!empty($DISCOURSE_ADMIN_EMAILS)
-    echo "---> Creating specified admin user ..."
-    rake admin:create <<-END
-    $DISCOURSE_ADMIN_EMAILS
-    $DISCOURSE_ADMIN_EMAILS_KEY
-    $DISCOURSE_ADMIN_EMAILS_KEY
-    y
-    END
-fi
-
   exec bundle exec "puma --config ../etc/puma.cfg"
 else
   echo "You might consider adding 'puma' into your Gemfile."
