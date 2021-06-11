@@ -1,10 +1,10 @@
 #!/bin/bash
 
-if [ $DISCOURSE_ADMIN_EMAILS ]
+if [ $DISCOURSE_ADMIN_EMAILS ]; then
     echo "---> Creating specified admin users ..."
-    rake admin:create << END
+    rake admin:create <<- END
 	$DISCOURSE_ADMIN_EMAILS
 	$DISCOURSE_ADMIN_EMAILS_KEY
 	$DISCOURSE_ADMIN_EMAILS_KEY
-END
-if
+	END
+fi
