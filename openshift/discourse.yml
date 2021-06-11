@@ -326,13 +326,25 @@ objects:
           - name: DISCOURSE_SERVE_STATIC_ASSETS
             value: "true"
           - name: DISCOURSE_ADMIN_EMAILS
-            value: ${DISCOURSE_ADMIN_EMAILS}
-          - name: DISCOURSE_SMTP_USER_NAME
-            value: ${SMTP_USER}
+            valueFrom:
+              secretKeyRef:
+                name: '${NAME}'
+                key: site-admin-user
+          - name: DISCOURSE_ADMIN_EMAILS
+            valueFrom:
+              secretKeyRef:
+                name: '${NAME}'
+                key: site-admin-user
           - name: DISCOURSE_ADMIN_EMAILS_KEY
-            value: ${DISCOURSE_ADMIN_EMAILS_KEY}
+            valueFrom:
+              secretKeyRef:
+                name: '${NAME}'
+                key: site-admin-password
           - name: DISCOURSE_SMTP_PASSWORD
-            value: ${SMTP_PASSWORD}
+            valueFrom:
+              secretKeyRef:
+                name: '${NAME}'
+                key: smtp-password
           - name: DISCOURSE_SMTP_ADDRESS
             value: ${SMTP_ADDRESS}
           - name: DISCOURSE_SMTP_PORT
@@ -367,6 +379,11 @@ objects:
         - name: init-database-table
           image: image-registry.openshift-image-registry.svc:5000/${PROJECT_NAME}/discourse:latest
           command: ['sh', '-c', 'pwd && ls && rake db:migrate --trace && $STI_SCRIPTS_PATH/initAdmins']
+        - env:
+	  - name: DISCOURSE_ADMIN_EMAILS
+            value: ${DISCOURSE_ADMIN_EMAILS}
+	  - name: DISCOURSE_ADMIN_EMAILS_KEY
+            value: ${DISCOURSE_ADMIN_EMAILS_KEY}
         volumes:
         - name: discourse-uploads
           persistentVolumeClaim:
