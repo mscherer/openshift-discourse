@@ -2,10 +2,9 @@
 
 if [ $DISCOURSE_ADMIN_EMAILS ]
     echo "---> Creating specified admin users ..."
-    rake admin:create <<-END
+    rake admin:create <<-EOF
     $DISCOURSE_ADMIN_EMAILS
     $DISCOURSE_ADMIN_EMAILS_KEY
-    $DISCOURSE_ADMIN_EMAILS_KEY                                                                                                                                                              
-    y
-    END
+    $DISCOURSE_ADMIN_EMAILS_KEY
+EOF
 if
