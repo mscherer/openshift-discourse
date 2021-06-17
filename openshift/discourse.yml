@@ -148,9 +148,8 @@ objects:
             value: 'true'
           - name: DISCOURSE_SERVE_STATIC_ASSETS
             value: 'true'
-	  - name: prometheus_trusted_ip_allowlist_regex
-            vaule: ${PROMETHEUS_DOMAIN}
-          #  value: '(::ffff:188\.18[4-5])|(::ffff:137.138)'
+          - name: prometheus_trusted_ip_allowlist_regex
+            value: ${PROMETHEUS_DOMAIN}
         from:
           kind: ImageStreamTag
           name: s2i-imagemagick-nodejs:latest
