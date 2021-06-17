@@ -100,6 +100,12 @@ COPY ./puma.rb $HOME/../etc/puma.rb
 RUN touch /run/nginx.pid && \
     chmod -R 666 /run/nginx.pid
 
+# Add desired plugins here
+# Prometheus
+RUN git clone --depth=1 https://github.com/discourse/discourse-prometheus.git /discourse/plugins/discourse-prometheus && \
+# Calendar
+    git clone --depth=1 https://github.com/discourse/discourse-calendar.git /discourse/plugins/discourse-calendar
+
 # Copy the S2I scripts from the specific language image to $STI_SCRIPTS_PATH
 COPY ./s2i/bin/ $STI_SCRIPTS_PATH
 

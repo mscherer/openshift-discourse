@@ -148,6 +148,9 @@ objects:
             value: 'true'
           - name: DISCOURSE_SERVE_STATIC_ASSETS
             value: 'true'
+	  - name: prometheus_trusted_ip_allowlist_regex
+            vaule: ${PROMETHEUS_DOMAIN}
+          #  value: '(::ffff:188\.18[4-5])|(::ffff:137.138)'
         from:
           kind: ImageStreamTag
           name: s2i-imagemagick-nodejs:latest
@@ -815,3 +818,6 @@ parameters:
   descritpion: The SMTP	server's user password to be able to send emails
   displayName: Discourse SMTP user password
 
+- name: PROMETHEUS_DOMAIN
+  description: The trusted regex for the Prometheus monitor
+  displayName: prometheus_trusted_ip_allowlist_regex
