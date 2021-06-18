@@ -337,6 +337,11 @@ objects:
               secretKeyRef:
                 name: '${NAME}'
                 key: site-admin-password
+          - name: DISCOURSE_SMTP_USER_NAME
+            valueFrom:
+              secretKeyRef:
+                name: discourse
+                key: smtp-user
           - name: DISCOURSE_SMTP_PASSWORD
             valueFrom:
               secretKeyRef:
@@ -357,7 +362,7 @@ objects:
               port: 8080
             initialDelaySeconds: 30
             timeoutSeconds: 3
-          name: discourse-psql-persistent
+          name: discourse-puma
           ports:
           - containerPort: 8080
           readinessProbe:
@@ -386,7 +391,7 @@ objects:
                 secretKeyRef:
                   name: '${NAME}'
                   key: site-admin-password
-          command: ['sh', '-c', 'pwd && ls && rake db:migrate --trace && $STI_SCRIPTS_PATH/initAdmins']
+          command: ['sh', '-c', 'rake db:migrate --trace && $STI_SCRIPTS_PATH/initAdmins']
         volumes:
         - name: discourse-uploads
           persistentVolumeClaim:
@@ -395,7 +400,7 @@ objects:
     - imageChangeParams:
         automatic: true
         containerNames:
-        - discourse-psql-persistent
+        - discourse-puma
         from:
           kind: ImageStreamTag
           name: ${NAME}:latest
