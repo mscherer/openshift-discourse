@@ -2,23 +2,17 @@ apiVersion: v1
 kind: Template
 labels:
   app: discourse
-  template: discourse-flask-psql-persistent
-  #message: 'The following software have been deployed on https://${APPLICATION_DOMAIN}.
-  #To finish the installation, please connect using "oc rsh" on the application pod and run the following:
-  #  export DISCOURSE_DB_HOST=\$POSTGRESQL_SERVICE_HOST
-  #  export DISCOURSE_DB_PORT=\$POSTGRESQL_SERVICE_PORT_POSTGRESQL
-  #  python -m discourse init
-  #'
+  template: discourse-ruby-psql-persistent
 
 metadata:
   annotations:
     description: A example deployment of Discourse
-    iconClass: icon-python
+    iconClass: icon-ruby
     openshift.io/display-name: Discourse
-    openshift.io/documentation-url: https://meta.discourse.org/t/beginners-guide-to-install-discourse-on-ubuntu-for-development
-    openshift.io/long-description: This template deploy discourse from git
+    openshift.io/documentation-url: github.com/jontrossbach/openshift-discourse
+    openshift.io/long-description: This template deploys discourse from git
     openshift.io/provider-display-name: OSPO, Red Hat, Inc.
-    tags: quickstart,python,discourse
+    tags: quickstart,ruby,discourse
     template.openshift.io/bindable: 'false'
   name: discourse
 objects:
@@ -31,6 +25,10 @@ objects:
     database-password: ${DATABASE_PASSWORD}
     database-user: ${DATABASE_USER}
     redis-password: ${REDIS_PASSWORD}
+    site-admin-password: ${DISCOURSE_ADMIN_EMAILS_KEY}
+    site-admin-user: ${DISCOURSE_ADMIN_EMAILS}
+    smtp-password: ${SMTP_PASSWORD}
+    smtp-user: ${SMTP_USER}
 
 - apiVersion: v1
   kind: Service
@@ -44,7 +42,7 @@ objects:
     ports:
     - name: web
       port: 8080
-      targetPort: 8080
+      targetPort: 8081
     selector:
       name: ${NAME}
 
@@ -121,6 +119,8 @@ objects:
     strategy:
       sourceStrategy:
         env:
+          - name: DISCOURSE_HOSTNAME
+            value: ${APPLICATION_DOMAIN}
           - name: DISCOURSE_DB_HOST
             value: postgresql
           - name: DISCOURSE_DB_NAME
@@ -136,7 +136,10 @@ objects:
                 name: '${NAME}'
                 key: database-password
           - name: DISCOURSE_REDIS_PASSWORD
-            value: '${REDIS_PASSWORD}'
+            valueFrom:
+              secretKeyRef:
+                name: '${NAME}'
+                key: redis-password
           - name: DISCOURSE_REDIS_HOST
             value: redis
           - name: RAILS_ENV
@@ -145,8 +148,8 @@ objects:
             value: 'true'
           - name: DISCOURSE_SERVE_STATIC_ASSETS
             value: 'true'
-          #- name: DISCOURSE_MAXMIND_LICENSE_KEY
-          #  value: '${DISCOURSE_MAXMIND_LICENSE_KEY}'
+          - name: prometheus_trusted_ip_allowlist_regex
+            value: ${PROMETHEUS_DOMAIN}
         from:
           kind: ImageStreamTag
           name: s2i-imagemagick-nodejs:latest
@@ -181,71 +184,119 @@ objects:
         name: ${NAME}
       spec:
         containers:
-#          - env:
-#          - name: DISCOURSE_SITE_URL
-#            value: https://${APPLICATION_DOMAIN}
-#          - name: DISCOURSE_DB_TYPE
-#            value: postgresql
-#          - name: DISCOURSE_DB_HOST
-#            value: postgresql
-#          - name: DISCOURSE_DB_NAME
-#            value: ${DATABASE_NAME}
-#          - name: DISCOURSE_DB_USER
-#            valueFrom:
-#              secretKeyRef:
-#                key: database-user
-#                name: '${NAME}'
-#          - name: DISCOURSE_DB_PASSWORD
-#            valueFrom:
-#              secretKeyRef:
-#                key: database-password
-#                name: '${NAME}'
-#          #- name: APP_CONFIG
-#          #value: ${APP_CONFIG}
-#          - name: APP_MODULE
-#            value: app
-#            #- name: DJANGO_SECRET_KEY
-#            #valueFrom:
-#            #  secretKeyRef:
-#            #    key: django-secret-key
-#            #    name: ${NAME}
-#          - name: DISCOURSE_REDIS_PASSWORD
-#            value: ${REDIS_PASSWORD}
-#          - name: DISCOURSE_REDIS_HOST
-#            value: redis
-#          - name: RAILS_ENV
-#            value: production
-#          - name: RAILS_SERVE_STATIC_FILES
-#            value: "true"
-#          - name: DISCOURSE_SERVE_STATIC_ASSETS
-#            value: "true"
-#          #- name: DISCOURSE_MAXMIND_LICENSE_KEY
-#          #  value: "${DISCOURSE_MAXMIND_LICENSE_KEY}"
-#          image: image-registry.openshift-image-registry.svc:5000/${PROJECT_NAME}/discourse:latest
-#          livenessProbe:
-#            httpGet:
-#              path: /
-#              port: 8080
-#            initialDelaySeconds: 30
-#            timeoutSeconds: 3
-#          name: discourse-nginx
-#          ports:
-#          - containerPort: 8080
-#          readinessProbe:
-#            httpGet:
-#              path: /
-#              port: 8080
-#            initialDelaySeconds: 3
-#            timeoutSeconds: 3
-#          resources:
-#            limits:
-#              memory: ${MEMORY_LIMIT}
-#          volumeMounts:
-#          - mountPath: /var/lib/discourse/
-#            name: discourse-data
         - env:
-          - name: DISCOURSE_SITE_URL
-            value: https://${APPLICATION_DOMAIN}
+          - name: PUMA_WORKERS
+            value: '2'
+          - name: DISCOURSE_DB_TYPE
+            value: postgresql
+          - name: DISCOURSE_DB_HOST
+            value: postgresql
+          - name: DISCOURSE_DB_NAME
+            value: discourse
+          - name: DISCOURSE_DB_USER
+            valueFrom:
+              secretKeyRef:
+                name: discourse
+                key: database-user
+          - name: DISCOURSE_DB_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: discourse
+                key: database-password
+          - name: APP_MODULE
+            value: app
+          - name: DISCOURSE_REDIS_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: '${NAME}'
+                key: redis-password
+          - name: DISCOURSE_REDIS_HOST
+            value: redis
+          - name: RAILS_ENV
+            value: production
+          - name: RAILS_SERVE_STATIC_FILES
+            value: 'true'
+          - name: DISCOURSE_SERVE_STATIC_ASSETS
+            value: 'true'
+          - name: DISCOURSE_ADMIN_EMAILS
+            valueFrom:
+              secretKeyRef:
+                name: '${NAME}'
+                key: site-admin-user
+          - name: DISCOURSE_SMTP_USER_NAME
+            valueFrom:
+              secretKeyRef:
+                name: '${NAME}'
+                key: smtp-user
+          - name: DISCOURSE_ADMIN_EMAILS_KEY
+            valueFrom:
+              secretKeyRef:
+                name: '${NAME}'
+                key: site-admin-password
+          - name: DISCOURSE_SMTP_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: '${NAME}'
+                key: smtp-password
+          - name: DISCOURSE_SMTP_ADDRESS
+            value: mx1.osci.io
+          - name: DISCOURSE_SMTP_PORT
+            value: '587'
+          - name: SMTP_ENABLE_START_TLS
+            value: 'true'
+          command: ['sh', '-c', 'bundler exec sidekiq -C config/sidekiq.yml']
+          image: image-registry.openshift-image-registry.svc:5000/${PROJECT_NAME}/discourse:latest
+          volumeMounts:
+          - mountPath: /opt/app-root/src/public/uploads/
+            name: discourse-uploads
+          name: discourse-sidekiq
+#         readinessProbe:
+#           exec:
+#             command: ['sh', '-c', 'cat /discourse/tmp/pids/sidekiq.pid']
+#           failureThreshold: 3
+#           initialDelaySeconds: 60
+#           periodSeconds: 10
+#           successThreshold: 1
+#           timeoutSeconds: 10
+#         livenessProbe:
+#           exec:
+#             command: ['sh', '-c', 'cat /discourse/tmp/pids/sidekiq.pid']
+#           failureThreshold: 3
+#           initialDelaySeconds: 300
+#            periodSeconds: 10
+#            successThreshold: 1
+#            timeoutSeconds: 10
+        - env:
+          - name: DISCOURSE_DB_HOST
+          - name: DISCOURSE_DB_PASSWORD
+          - name: DISCOURSE_REDIS_PASSWORD
+          - name: DISCOURSE_REDIS_HOST
+          image: image-registry.openshift-image-registry.svc:5000/${PROJECT_NAME}/discourse:latest
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 8081
+            initialDelaySeconds: 30
+            timeoutSeconds: 3
+          name: discourse-nginx
+          command: ['sh', '-c', 'nginx -g "daemon off;" -c $NGINX_CONFIGURATION_PATH/nginx.conf']
+          ports:
+          - containerPort: 8081
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 8081
+            initialDelaySeconds: 3
+            timeoutSeconds: 3
+          resources:
+            limits:
+              memory: ${MEMORY_LIMIT}
+          volumeMounts:
+          - mountPath: /opt/app-root/src/public/uploads/
+            name: discourse-uploads
+        - env:
+          - name: PUMA_WORKERS
+            value: '2'
           - name: DISCOURSE_DB_TYPE
             value: postgresql
           - name: DISCOURSE_DB_HOST
@@ -266,11 +317,6 @@ objects:
           #value: ${APP_CONFIG}
           - name: APP_MODULE
             value: app
-            #- name: DJANGO_SECRET_KEY
-            #valueFrom:
-            #  secretKeyRef:
-            #    key: django-secret-key
-            #    name: ${NAME}
           - name: DISCOURSE_REDIS_PASSWORD
             value: ${REDIS_PASSWORD}
           - name: DISCOURSE_REDIS_HOST
@@ -281,8 +327,34 @@ objects:
             value: "true"
           - name: DISCOURSE_SERVE_STATIC_ASSETS
             value: "true"
+          - name: DISCOURSE_ADMIN_EMAILS
+            valueFrom:
+              secretKeyRef:
+                name: '${NAME}'
+                key: site-admin-user
+          - name: DISCOURSE_ADMIN_EMAILS_KEY
+            valueFrom:
+              secretKeyRef:
+                name: '${NAME}'
+                key: site-admin-password
+          - name: DISCOURSE_SMTP_USER_NAME
+            valueFrom:
+              secretKeyRef:
+                name: discourse
+                key: smtp-user
+          - name: DISCOURSE_SMTP_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: '${NAME}'
+                key: smtp-password
+          - name: DISCOURSE_SMTP_ADDRESS
+            value: ${SMTP_ADDRESS}
+          - name: DISCOURSE_SMTP_PORT
+            value: ${SMTP_PORT}
+          - name: SMTP_ENABLE_START_TLS
+            value: 'true'
           #- name: DISCOURSE_MAXMIND_LICENSE_KEY
-          #  value: "${DISCOURSE_MAXMIND_LICENSE_KEY}"
+          #  value: '${DISCOURSE_MAXMIND_LICENSE_KEY}'
           image: image-registry.openshift-image-registry.svc:5000/${PROJECT_NAME}/discourse:latest
           livenessProbe:
             httpGet:
@@ -290,7 +362,7 @@ objects:
               port: 8080
             initialDelaySeconds: 30
             timeoutSeconds: 3
-          name: discourse-psql-persistent
+          name: discourse-puma
           ports:
           - containerPort: 8080
           readinessProbe:
@@ -303,21 +375,32 @@ objects:
             limits:
               memory: ${MEMORY_LIMIT}
           volumeMounts:
-          - mountPath: /var/lib/discourse/
-            name: discourse-data
+          - mountPath: /opt/app-root/src/public/uploads/
+            name: discourse-uploads
         initContainers:
         - name: init-database-table
           image: image-registry.openshift-image-registry.svc:5000/${PROJECT_NAME}/discourse:latest
-          command: ['sh', '-c', 'pwd && ls && rake db:migrate --trace']
+          env:
+            - name: DISCOURSE_ADMIN_EMAILS
+              valueFrom:
+                secretKeyRef:
+                  name: '${NAME}'
+                  key: site-admin-user
+            - name: DISCOURSE_ADMIN_EMAILS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: '${NAME}'
+                  key: site-admin-password
+          command: ['sh', '-c', 'rake db:migrate --trace && $STI_SCRIPTS_PATH/initAdmins']
         volumes:
-        - name: discourse-data
+        - name: discourse-uploads
           persistentVolumeClaim:
-            claimName: discourse-data
+            claimName: discourse-uploads
     triggers:
     - imageChangeParams:
         automatic: true
         containerNames:
-        - discourse-psql-persistent
+        - discourse-puma
         from:
           kind: ImageStreamTag
           name: ${NAME}:latest
@@ -327,7 +410,7 @@ objects:
 - apiVersion: v1
   kind: PersistentVolumeClaim
   metadata:
-    name: discourse-data
+    name: discourse-uploads
   spec:
     accessModes:
     - ReadWriteOnce
@@ -603,7 +686,7 @@ parameters:
   required: true
   value: '10'
 
-- description: Maximum amount of memory the Django container can use.
+- description: Maximum amount of memory the Rails container can use.
   displayName: Memory Limit
   name: MEMORY_LIMIT
   required: true
@@ -631,6 +714,7 @@ parameters:
     are not using the default branch.
   displayName: Git Reference
   name: s2i_SOURCE_REPOSITORY_REF
+  value: sidekiq
 
 - description: The URL of the repository with your application source code.
   displayName: Git Repository URL
@@ -642,14 +726,14 @@ parameters:
     are not using the default branch.
   displayName: Git Reference
   name: SOURCE_REPOSITORY_REF
-  tag: v2.6.2 
+  value: v2.6.2 
 
 
-- description: The exposed hostname that will route to the Django service, if left
+- description: The exposed hostname that will route to the Nginx-to-Rails service, if left
     blank a value will be defaulted.
   displayName: Application Hostname
   name: APPLICATION_DOMAIN
-  value: ''
+#  value: http://${openshift.project()}.apps.ospo-osci.z3b1.p1.openshiftapps.com/
 
 # - description: Github trigger secret.  A difficult to guess string encoded as part
 #     of the webhook URL.  Not encrypted.
@@ -672,28 +756,6 @@ parameters:
   from: '[a-zA-Z0-9]{16}'
   generate: expression
   name: DATABASE_PASSWORD
-
-# - description: Relative path to Gunicorn configuration file (optional).
-#   displayName: Application Configuration File Path
-#   name: APP_CONFIG
-#   development:
-#   adapter: postgresql
-#   encoding: unicode
-#   database: blog_development
-#   pool: 5
-#   username: POSTGRESQL_USER
-#   password: DATABASE_PASSWORD
-# 
-# - description: Set this to a long random string.
-#   displayName: Django Secret Key
-#   from: '[\w]{50}'
-#   generate: expression
-#   name: DJANGO_SECRET_KEY
-
-- description: The custom PyPi index URL
-  displayName: Custom PyPi Index URL
-  name: PIP_INDEX_URL
-  value: ''
 
 - description: Version of Redis image to be used (3.2 or latest).
   displayName: Version of Redis Image
@@ -720,11 +782,11 @@ parameters:
   required: true
   value: 1Gi
 
-- description: RedHat mail server
-  displayName: RedHat mail server
-  name: MAIL_SERVER
+- description: SMTP mail server domain
+  displayName: Discourse mail server domain
+  name: SMTP_ADDRESS
   required: true
-  value: smtp.corp.redhat.com
+  value: mx1.osci.io
 
 - description: Maxmind IP Reverse Look Up Key
   displayName: Maxmind IP Reverse Look Up Key
@@ -732,4 +794,34 @@ parameters:
   required: true
   value: TH15154F4K3K3Y
 
+- name: SMTP_PORT
+  descritpion: The SMTP port for discourse instance to email through
+  displayName: SMTP port
+  value: '587'
+
 - name: PROJECT_NAME
+  descritpion: The OpenShift/Kubernetes Project/Namespace name, respectively
+  displayName: Project name
+  required: true
+
+- name: DISCOURSE_ADMIN_EMAILS
+  descritpion: Discourse instance's default admin users (if not admins it will default to a set up screen upon successful deployment)
+  displayName: Discourse admin emails
+  required: false
+
+- name: DISCOURSE_ADMIN_EMAILS_KEY
+  description: Discourse instance's default admin passwords (required if using default admins)
+  displayName: Discourse admin Key
+  required: false
+  
+- name: SMTP_USER
+  descritpion: The SMTP server's user for discourse to be able to send emails
+  displayName: Discourse SMTP user
+
+- name: SMTP_PASSWORD
+  descritpion: The SMTP	server's user password to be able to send emails
+  displayName: Discourse SMTP user password
+
+- name: PROMETHEUS_DOMAIN
+  description: The trusted regex for the Prometheus monitor
+  displayName: prometheus_trusted_ip_allowlist_regex
