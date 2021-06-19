@@ -2,7 +2,7 @@ apiVersion: v1
 kind: Template
 labels:
   app: discourse
-  template: discourse-ruby-psql-persistent
+  template: discourse-template
 
 metadata:
   annotations:
@@ -92,8 +92,6 @@ objects:
     strategy:
       dockerStrategy:
         noCache: true
-        # see https://docs.openshift.com/container-platform/3.9/dev_guide/builds/build_strategies.html#override-builder-image-scripts
-        #scripts: https://raw.githubusercontent.com/mscherer/discourse-openshift/master/
       triggers:
       - type: ImageChange
       - type: ConfigChange

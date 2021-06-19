@@ -39,3 +39,6 @@ Use the Host/Port name with http:// in front of it to create and environment var
 
 Once installed, run the `$ oc new-app` command from above and follow the same steps.
 
+### Post Installation tips
+
+`rake --tasks` can help you do a lot of things when run from the discourse-puma container from the discourse server
