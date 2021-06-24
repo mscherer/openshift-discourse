@@ -712,19 +712,19 @@ parameters:
     are not using the default branch.
   displayName: Git Reference
   name: s2i_SOURCE_REPOSITORY_REF
-  value: sidekiq
+  value: fedora-oidc-test
 
 - description: The URL of the repository with your application source code.
   displayName: Git Repository URL
   name: SOURCE_REPOSITORY_URL
   required: true
-  value: https://github.com/discourse/discourse
+  value: https://github.com/puiterwijk/discourse
 
 - description: Set this to a branch name, tag or other ref of your repository if you
     are not using the default branch.
   displayName: Git Reference
   name: SOURCE_REPOSITORY_REF
-  value: v2.6.2 
+  value: managed_auth_sync_groups
 
 
 - description: The exposed hostname that will route to the Nginx-to-Rails service, if left

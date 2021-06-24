@@ -102,9 +102,11 @@ RUN touch /run/nginx.pid && \
 
 # Add desired plugins here
 # Prometheus
-RUN git clone --depth=1 https://github.com/discourse/discourse-prometheus.git $HOME/plugins/discourse-prometheus && \
+#RUN git clone --depth=1 --single-branch https://github.com/discourse/discourse-prometheus.git $HOME/plugins/discourse-prometheus && \
 # Calendar
-    git clone --depth=1 https://github.com/discourse/discourse-calendar.git $HOME/plugins/discourse-calendar
+#    git clone --depth=1 --single-branch https://github.com/discourse/discourse-calendar.git $HOME/plugins/discourse-calendar
+# OIDC authenticator
+RUN git clone --depth=1 -b add_group_sync --single-branch https://github.com/puiterwijk/discourse-oauth2-basic.git $HOME/plugins/discourse-oauth2-basic
 
 # Copy the S2I scripts from the specific language image to $STI_SCRIPTS_PATH
 COPY ./s2i/bin/ $STI_SCRIPTS_PATH
