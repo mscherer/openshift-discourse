@@ -1,0 +1,4 @@
+description: A example deployment of Discourse
+name: discourse
+tags: quickstart,ruby,discourse
+version: v0.0.1

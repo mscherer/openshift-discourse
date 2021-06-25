@@ -1,0 +1,28 @@
+application_domain: '# TODO: must define a default value for .application_domain'
+database_name: discourse
+database_password: '# TODO: must define a default value for .database_password'
+database_user: discourse
+discourse_admin_emails: '# TODO: must define a default value for .discourse_admin_emails'
+discourse_admin_emails_key: '# TODO: must define a default value for .discourse_admin_emails_key'
+discourse_data_volume_capacity: 1Gi
+discourse_maxmind_license_key: TH15154F4K3K3Y
+memory_limit: 1024Mi
+memory_postgresql_limit: 512Mi
+name: discourse
+namespace: openshift
+postgresql_version: "10"
+postgresql_volume_capacity: 1Gi
+project_name: '# TODO: must define a default value for .project_name'
+prometheus_domain: '# TODO: must define a default value for .prometheus_domain'
+python_version: "3.6"
+redis_password: '# TODO: must define a default value for .redis_password'
+redis_version: latest
+redis_volume_capacity: 1Gi
+s2i_source_repository_ref: fedora-oidc-test
+s2i_source_repository_url: https://github.com/jontrossbach/openshift-discourse
+smtp_address: mx1.osci.io
+smtp_password: '# TODO: must define a default value for .smtp_password'
+smtp_port: "587"
+smtp_user: '# TODO: must define a default value for .smtp_user'
+source_repository_ref: managed_auth_sync_groups
+source_repository_url: https://github.com/puiterwijk/discourse

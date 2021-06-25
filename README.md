@@ -1,5 +1,11 @@
-# openshift-discourse
-This is an automated deploment of discourse for OpenShift
+# OpenShift Discourse
+This is an automated deploment of Discourse for OpenShift.
+
+Their are two ways to deploy Discourse right now: Helm and the `kind: Template` file. The Kind Template	file has been tested and verified to work the Helm chart may need a bit	of tlc to get working right now given that it was deployed autogenrated from	the template using the [template2helm v0.1](https://github.com/redhat-cop/template2helm/tree/v0.1.0) release.
+
+## Helm Chart TODO
+
+## `kind: Template` file
 
 To get it working (with the optional SMTP set up and Admin users):
 
