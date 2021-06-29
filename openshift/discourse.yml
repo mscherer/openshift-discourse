@@ -442,77 +442,82 @@ objects:
       name: postgresql
 
 - apiVersion: v1
-  kind: DeploymentConfig
+  kind: Deployment
   metadata:
     annotations:
-      description: Defines how to deploy the database
-      template.alpha.openshift.io/wait-for-ready: 'true'
+      deployment.kubernetes.io/revision: '4'
+      image.openshift.io/triggers: |-
+        [
+          {
+            "from": {
+              "kind": "ImageStreamTag",
+              "namespace": "openshift",
+              "name": "openshift/postgresql:10"
+            },
+            "fieldPath": "spec.template.spec.containers[0].image"
+          }
+        ]
+    selfLink: /apis/apps/v1/namespaces/abigail-discourse-project-1/deployments/postgresql
     name: postgresql
+    #namespace: ${openshift.project()}
   spec:
     replicas: 1
     selector:
-      name: postgresql
-    strategy:
-      type: Recreate
+      matchLabels:
+        app: postgresql
     template:
       metadata:
+        creationTimestamp: null
         labels:
-          name: postgresql
-        name: postgresql
+          app: postgresql
       spec:
         containers:
-        - env:
-          - name: POSTGRESQL_USER
-            valueFrom:
-              secretKeyRef:
-                key: database-user
-                name: ${NAME}
-          - name: POSTGRESQL_PASSWORD
-            valueFrom:
-              secretKeyRef:
-                key: database-password
-                name: ${NAME}
-          - name: POSTGRESQL_DATABASE
-            value: ${DATABASE_NAME}
-          image: ' '
-          #command: ['sh', '-c', 'psql -U postgres -d discourse -c "CREATE EXTENSION hstore;"  && psql -U postgres -d discourse -c "CREATE EXTENSION pg_trgm;"']
-          livenessProbe:
-            exec:
-              command:
-              - /usr/libexec/check-container
-              - --live
-            initialDelaySeconds: 120
-            timeoutSeconds: 10
-          name: postgresql
-          ports:
-          - containerPort: 5432
-          readinessProbe:
-            exec:
-              command:
-              - /usr/libexec/check-container
-            initialDelaySeconds: 5
-            timeoutSeconds: 1
-          resources:
-            limits:
-              memory: ${MEMORY_POSTGRESQL_LIMIT}
-          volumeMounts:
-          - mountPath: /var/lib/pgsql/data
-            name: postgresql-data
-        volumes:
-        - name: postgresql-data
-          persistentVolumeClaim:
-            claimName: postgresql
-    triggers:
-    - imageChangeParams:
-        automatic: true
-        containerNames:
-        - postgresql
-        from:
-          kind: ImageStreamTag
-          name: postgresql:${POSTGRESQL_VERSION}
-          namespace: ${NAMESPACE}
-      type: ImageChange
-    - type: ConfigChange
+          - resources: {}
+            readinessProbe:
+              exec:
+                command:
+                  - /usr/libexec/check-container
+              initialDelaySeconds: 5
+              timeoutSeconds: 1
+              periodSeconds: 9
+              successThreshold: 1
+              failureThreshold: 3
+            terminationMessagePath: /dev/termination-log
+            name: postgresql
+            livenessProbe:
+              exec:
+                command:
+                  - /usr/libexec/check-container --live
+              initialDelaySeconds: 120
+              timeoutSeconds: 1
+              periodSeconds: 15
+              successThreshold: 1
+              failureThreshold: 3
+            env:
+              - name: POSTGRESQL_DATABASE
+                value: discourse
+              - name: POSTGRESQL_USER
+                valueFrom:
+                  secretKeyRef:
+                    name: discourse
+                    key: database-user
+              - name: POSTGRESQL_PASSWORD
+                valueFrom:
+                  secretKeyRef:
+                    name: discourse
+                    key: database-password
+            ports:
+              - containerPort: 5432
+                protocol: TCP
+            imagePullPolicy: Always
+            envFrom:
+              - secretRef:
+                  name: discourse
+            image: >-
+              image-registry.openshift-image-registry.svc:5000/openshift/postgresql:10
+        restartPolicy: Always
+    strategy:
+      type: Recreate
 
 #- apiVersion: batch/v1beta1
 #  kind: CronJob
@@ -554,7 +559,6 @@ objects:
 #              namespace: ${NAMESPACE}
 #          type: ImageChange
 #        - type: ConfigChange
-
 
 - apiVersion: v1
   kind: PersistentVolumeClaim
