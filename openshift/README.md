@@ -1,9 +1,14 @@
-# Postgres deployment not working
+                                                                                                                               
+# Postgres DeploymentConfig to deployment working
 
-After following the rule for the [gist I made]() Postgres is still not working. I also tried using openshift console but to my dismay I found that the template `oc process <same args as root dir README oc command>` command was rejecting my templat file saying It was missing an expected key.
+After following the rule for the [gist I made](https://gist.github.com/jontrossbach/64a65a453f277a6cdc9c40c2c04d2ec5) Postgres Deployment is working. I had help from the openshift console b\
+utton for `Create Deployment`
 
-The working openshift deployment file is incluse as `postgresql.yml.live.bak`.
+# TODO Redis and Discourse DeploymentConfig to Deployment conversion
 
-The Deployment isolated from a template is passing `kubectl apply -f postgresql.yml --dry-run=client`.
+# TODO figure out replacement for DeploymentConfig features like git hooks and triggers
 
-Still a mystery.
+
+
+
+
