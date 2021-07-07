@@ -37,5 +37,11 @@ Use the Host/Port name with http:// in front of it to create and environment var
 
 [Install OpenShift CRC](https://developers.redhat.com/products/codeready-containers/overview).
 
-Once installed, run the `$ oc new-app` command from above and follow the same steps.
+Once installed after running `$ crc setup`,
+
+give your local CRC instance 16GB of RAM: `$ crc config set memory 16000`.
+
+Now you should restart your cluster if it is running or just start your CRC cluster: `$ crc stop` and `$ crc start`.
+
+Once started, run the `$ oc new-app` command from above and follow the same steps.
 
