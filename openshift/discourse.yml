@@ -714,7 +714,7 @@ parameters:
     are not using the default branch.
   displayName: Git Reference
   name: s2i_SOURCE_REPOSITORY_REF
-  value: sidekiq
+  value: main
 
 - description: The URL of the repository with your application source code.
   displayName: Git Repository URL
