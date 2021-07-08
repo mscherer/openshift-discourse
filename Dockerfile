@@ -69,10 +69,8 @@ ENV PATH=/opt/rh/gcc-toolset-9/root/usr/bin:$PATH
 
 # Install Discourse Dependencies
 RUN dnf install -y postgresql ImageMagick brotli; yum clean all
-RUN npm install -g uglify-js && npm install -g svgo
-RUN rpm --import https://dl.yarnpkg.com/rpm/pubkey.gpg && \
-    curl -sL https://dl.yarnpkg.com/rpm/yarn.repo -o /etc/yum.repos.d/yarn.repo && \
-    dnf install -y yarn --disablerepo=AppStream
+RUN npm install -g uglify-js && npm install -g svgo && npm install yarn
+ENV PATH=/opt/app-root/src/.npm-global/bin:$PATH
 
 # install nodejs dependencies for the rest of discourse (not just the static asset compilation)
 #RUN yum install -y centos-release-scl-rh
