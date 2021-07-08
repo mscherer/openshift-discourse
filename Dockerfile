@@ -69,7 +69,7 @@ ENV PATH=/opt/rh/gcc-toolset-9/root/usr/bin:$PATH
 
 # Install Discourse Dependencies
 RUN dnf install -y postgresql ImageMagick brotli; yum clean all
-RUN npm install -g uglify-js && npm install -g svgo && npm install -g terser
+RUN npm install -g uglify-js && npm install -g svgo && npm install -g terser && npm install -g yarn
 ENV PATH=/opt/app-root/src/.npm-global/bin:$PATH
 
 # install nodejs dependencies for the rest of discourse (not just the static asset compilation)
