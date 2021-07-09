@@ -144,8 +144,8 @@ objects:
             value: redis
           - name: RAILS_ENV
             value: production
-	  - name: REMOVE_BUNDLER_SPECIFICATION
-	    value: ${REMOVE_BUNDLER_SPECIFICATION}
+          - name: REMOVE_BUNDLER_SPECIFICATION
+            value: ${REMOVE_BUNDLER_SPECIFICATION}
           - name: RAILS_SERVE_STATIC_FILES
             value: 'true'
           - name: DISCOURSE_SERVE_STATIC_ASSETS

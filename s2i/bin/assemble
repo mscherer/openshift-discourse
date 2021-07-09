@@ -29,7 +29,7 @@ if [ -n "$NPM_MIRROR" ]; then
 	npm config set registry $NPM_MIRROR
 fi
 
-if [ -n "$REMOVE_BUNDLER_SPECIFICATION"]
+if [ -n "$REMOVE_BUNDLER_SPECIFICATION"]; then
         perl -0777 -i.original -pe 's/\nBUNDLED\ WITH\n.*\n//' Gemfile.lock
 fi
 
