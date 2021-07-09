@@ -69,17 +69,19 @@ ENV PATH=/opt/rh/gcc-toolset-9/root/usr/bin:$PATH
 
 # Install Discourse Dependencies
 RUN dnf install -y postgresql ImageMagick brotli; yum clean all
-RUN npm install -g uglify-js && npm install -g svgo && npm install -g terser && npm install -g yarn
-ENV PATH=/opt/app-root/src/.npm-global/bin:$PATH
 
 # install nodejs dependencies for the rest of discourse (not just the static asset compilation)
 #RUN yum install -y centos-release-scl-rh
 RUN MODULE_DEPS="make gcc gcc-c++ git openssl-devel jemalloc" && \
     INSTALL_PKGS="$MODULE_DEPS nodejs npm nodejs-nodemon nss_wrapper" #rh-nodejs${NODEJS_VERSION} rh-nodejs${NODEJS_VERSION}-npm rh-nodejs${NODEJS_VERSION}-nodejs-nodemon nss_wrapper" && \
+    npm install -g uglify-js && \
+    npm install -g svgo && \
+    npm install -g terser && \
     ln -s /usr/lib/node_modules/nodemon/bin/nodemon.js /usr/bin/nodemon && \
     yum install -y --setopt=tsflags=nodocs $INSTALL_PKGS && \
     rpm -V $INSTALL_PKGS && \
     yum -y clean all
+ENV PATH=/opt/app-root/src/.npm-global/bin:$PATH
 
 
 # Install nginx
@@ -93,18 +95,15 @@ COPY ./nginx.conf ${NGINX_CONFIGURATION_PATH}/conf.d/discourse.conf
 COPY ./sidekiq.yml $HOME/../etc/sidekiq.yml
 COPY ./puma.rb $HOME/../etc/puma.rb
 
-# Copy Puma socket file
-#COPY ./puma.sock /opt/app-root/src/tmp/sockets/puma.sock
-
 # This should allow nginx-sidecar to start without priviledge escilation
 RUN touch /run/nginx.pid && \
     chmod -R 666 /run/nginx.pid
 
 # Add desired plugins here
 # Prometheus
-#RUN git clone --depth=1 https://github.com/discourse/discourse-prometheus.git $HOME/plugins/discourse-prometheus && \
+RUN git clone --depth=1 https://github.com/discourse/discourse-prometheus.git $HOME/plugins/discourse-prometheus && \
 # Calendar
-#    git clone --depth=1 https://github.com/discourse/discourse-calendar.git $HOME/plugins/discourse-calendar
+    git clone --depth=1 https://github.com/discourse/discourse-calendar.git $HOME/plugins/discourse-calendar
 
 # Copy the S2I scripts from the specific language image to $STI_SCRIPTS_PATH
 COPY ./s2i/bin/ $STI_SCRIPTS_PATH
@@ -115,28 +114,6 @@ COPY ./root/ /
 # Drop the root user and make the content of /opt/app-root owned by user 1001
 RUN chown -R 1001:0 ${APP_ROOT} && chmod -R ug+rwx ${APP_ROOT} #&& \
     #rpm-file-permissions
-
-#RUN sed -i -f ${NGINX_APP_ROOT}/nginxconf.sed ${NGINX_CONF_PATH} && \
-#    chmod a+rwx ${NGINX_CONF_PATH} && \
-#    mkdir -p ${NGINX_APP_ROOT}/etc/nginx.d/ && \
-#    mkdir -p ${NGINX_APP_ROOT}/etc/nginx.default.d/ && \
-#    mkdir -p ${NGINX_APP_ROOT}/src/nginx-start/ && \
-#    mkdir -p ${NGINX_CONTAINER_SCRIPTS_PATH}/nginx-start && \
-#    mkdir -p ${NGINX_LOG_PATH} && \
-#    mkdir -p ${NGINX_PERL_MODULE_PATH} && \
-#    ln -s ${NGINX_LOG_PATH} /var/log/nginx && \
-#    ln -s /etc/opt/rh/rh-nginx${NGINX_SHORT_VER}/nginx /etc/nginx && \
-#    ln -s /opt/rh/rh-nginx${NGINX_SHORT_VER}/root/usr/share/nginx /usr/share/nginx && \
-#    chmod -R a+rwx ${NGINX_APP_ROOT}/etc && \
-#    chmod -R a+rwx /var/opt/rh/rh-nginx${NGINX_SHORT_VER} && \
-#    chmod -R a+rwx ${NGINX_CONTAINER_SCRIPTS_PATH}/nginx-start && \
-#    chown -R 1001:0 ${NGINX_APP_ROOT} && \
-#    chown -R 1001:0 /var/opt/rh/rh-nginx${NGINX_SHORT_VER} && \
-#    chown -R 1001:0 ${NGINX_CONTAINER_SCRIPTS_PATH}/nginx-start && \
-#    chmod -R a+rwx /var/run && \
-#    chown -R 1001:0 /var/run && \
-#    rpm-file-permissions
-
 
   # initialize dir needed for puma/sidekiq persistent volume
 RUN  mkdir ${APP_ROOT}/public/uploads/ && \

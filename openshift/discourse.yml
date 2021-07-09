@@ -144,6 +144,8 @@ objects:
             value: redis
           - name: RAILS_ENV
             value: production
+	  - name: REMOVE_BUNDLER_SPECIFICATION
+	    value: ${REMOVE_BUNDLER_SPECIFICATION}
           - name: RAILS_SERVE_STATIC_FILES
             value: 'true'
           - name: DISCOURSE_SERVE_STATIC_ASSETS
@@ -662,7 +664,7 @@ objects:
 
 parameters:
 
-- description: The name assigned to all of the frontend objects defined in this template.
+- description: The name assigned to all of the front end objects defined in this template.
   displayName: Name
   name: NAME
   required: true
@@ -674,11 +676,11 @@ parameters:
   required: true
   value: openshift
 
-- description: Version of Python image to be used (3.6 or latest).
-  displayName: Version of Python Image
-  name: PYTHON_VERSION
+- description: Whether or not to ignore bundler specification
+  displayName: Ignore Bundler Version
+  name: REMOVE_BUNDLER_SPECIFICATION
   required: true
-  value: '3.6'
+  value: 'true'
 
 - description: Version of PostgreSQL image to be used (10 or latest).
   displayName: Version of PostgreSQL Image
@@ -727,7 +729,6 @@ parameters:
   displayName: Git Reference
   name: SOURCE_REPOSITORY_REF
   value: v2.7.4 
-
 
 - description: The exposed hostname that will route to the Nginx-to-Rails service, if left
     blank a value will be defaulted.

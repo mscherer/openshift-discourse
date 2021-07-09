@@ -29,6 +29,10 @@ if [ -n "$NPM_MIRROR" ]; then
 	npm config set registry $NPM_MIRROR
 fi
 
+if [ -n "$REMOVE_BUNDLER_SPECIFICATION"]
+        perl -0777 -i.original -pe 's/\nBUNDLED\ WITH\n.*\n//' Gemfile.lock
+fi
+
 echo "---> Building your Ruby application from source ..."
 if [ -f Gemfile ]; then
   ADDTL_BUNDLE_ARGS="--retry 2"

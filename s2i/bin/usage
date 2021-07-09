@@ -3,14 +3,15 @@
 DISTRO="`grep ^ID= /etc/*-release | cut -d'"' -f2`"
 
 cat <<EOF
-This is a S2I ruby-${RUBY_VERSION} ${DISTRO} base image:
+This is a S2I ruby-${RUBY_VERSION} NodeJS-${NODE_VERSION} NGINX-${NGINX_VERSION} ${DISTRO} base image:
 To use it, install S2I: https://github.com/openshift/source-to-image
 
 Sample invocation:
 
-s2i build https://github.com/sclorg/s2i-ruby-container.git --context-dir=${RUBY_VERSION}/test/puma-test-app/ ${IMAGE_NAME} ruby-sample-app
-
+git clone https://github.com/jontrossbach/openshift-discourse.git
+podman build . -t s2i-discourse-image #from the repo's root directory
 
 You can then run the resulting image via:
-podman run -p 8080:8080 ruby-sample-app
+podman run -d --systemd=always --name discourse s2i-discourse-image /usr/sbin/init
+podman exec -it discourse bash
 EOF
