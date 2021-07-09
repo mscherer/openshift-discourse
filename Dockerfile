@@ -71,18 +71,16 @@ ENV PATH=/opt/rh/gcc-toolset-9/root/usr/bin:$PATH
 RUN dnf install -y postgresql ImageMagick brotli; yum clean all
 
 # install nodejs dependencies for the rest of discourse (not just the static asset compilation)
-#RUN yum install -y centos-release-scl-rh
+ENV PATH=/opt/app-root/src/.npm-global/bin:$PATH
 RUN MODULE_DEPS="make gcc gcc-c++ git openssl-devel jemalloc" && \
-    INSTALL_PKGS="$MODULE_DEPS nodejs npm nodejs-nodemon nss_wrapper" #rh-nodejs${NODEJS_VERSION} rh-nodejs${NODEJS_VERSION}-npm rh-nodejs${NODEJS_VERSION}-nodejs-nodemon nss_wrapper" && \
     npm install -g uglify-js && \
     npm install -g svgo && \
     npm install -g terser && \
+    INSTALL_PKGS="$MODULE_DEPS nodejs-nodemon nss_wrapper" && \
     ln -s /usr/lib/node_modules/nodemon/bin/nodemon.js /usr/bin/nodemon && \
     yum install -y --setopt=tsflags=nodocs $INSTALL_PKGS && \
     rpm -V $INSTALL_PKGS && \
     yum -y clean all
-ENV PATH=/opt/app-root/src/.npm-global/bin:$PATH
-
 
 # Install nginx
 RUN dnf install -y nginx
