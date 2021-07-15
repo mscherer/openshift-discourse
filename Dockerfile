@@ -1,7 +1,7 @@
 FROM centos/s2i-base-centos8
 
-# This image provides a Ruby environment you can use to run your Ruby
-# applications.
+# This image provides a Ruby, NodeJS, and Nginx environment
+# in which you can use to run your Discourse.
 
 EXPOSE 8080
 EXPOSE 8081
@@ -11,44 +11,39 @@ ENV RUBY_MAJOR_VERSION=2 \
 
 # Ruby env stuff
 ENV RUBY_VERSION="${RUBY_MAJOR_VERSION}.${RUBY_MINOR_VERSION}" \
-    RUBY_SCL_NAME_VERSION="${RUBY_MAJOR_VERSION}${RUBY_MINOR_VERSION}" \
 # NODEJS env stuff
     NODEJS_VERSION=14 \
     NPM_RUN=start \
     NAME=nodejs \
-    NPM_CONFIG_PREFIX=$HOME/.npm-global
-
+    NPM_CONFIG_PREFIX=$HOME/.npm-global \
 # Nginx env stuff
-ENV NGINX_CONFIGURATION_PATH=${APP_ROOT}/etc/nginx 
-#    NGINX_CONF_PATH=/etc/opt/rh/rh-nginx${NGINX_SHORT_VER}/nginx/nginx.conf \
-#    NGINX_DEFAULT_CONF_PATH=${APP_ROOT}/etc/nginx.default.d \
-#    NGINX_CONTAINER_SCRIPTS_PATH=/usr/share/container-scripts/nginx \
-#    NGINX_APP_ROOT=${APP_ROOT} \
-#    NGINX_LOG_PATH=/var/opt/rh/rh-nginx${NGINX_SHORT_VER}/log/nginx \
-#    NGINX_PERL_MODULE_PATH=${APP_ROOT}/etc/perl
+    NGINX_CONFIGURATION_PATH=${APP_ROOT}/etc/nginx \
+# Discourse env stuff
+    EARLIEST_COMPATABLE_DISCOURSE_VERSION=2.6.0 \
+    LATEST_KNOWN_DISCOURSE_VERSION=2.8.0.beta2
 
-ENV RUBY_SCL="ruby-${RUBY_SCL_NAME_VERSION}" \
-    IMAGE_NAME="centos8/ruby-${RUBY_SCL_NAME_VERSION}" \
-    SUMMARY="Platform for building and running Ruby $RUBY_VERSION applications" \
-    DESCRIPTION="Ruby $RUBY_VERSION available as container is a base platform for \
-building and running various Ruby $RUBY_VERSION applications and frameworks. \
-Ruby is the interpreted scripting language for quick and easy object-oriented programming. \
-It has many features to process text files and to do system management tasks (as in Perl). \
-It is simple, straight-forward, and extensible."
+ENV IMAGE_NAME="centos8/discourse-${LATEST_KNOWN_DISCOURSE_VERSION}" \
+    SUMMARY="Platform for building and running Ruby $RUBY_VERSION, \
+NodeJS $NODEJS_VERSION, and NGINX to run Discourse." \
+    DESCRIPTION="This container is a base platform for \
+building and running various Discourse versions currently only known \
+to work with $EARLIEST_COMPATABLE_DISCOURSE_VERSION through \
+$LATEST_KNOWN_DISCOURSE_VERSION. For more information see \
+https://discourse.org or this github repo."
 
 LABEL summary="$SUMMARY" \
       description="$DESCRIPTION" \
       io.k8s.description="$DESCRIPTION" \
       io.k8s.display-name="Ruby ${RUBY_VERSION}" \
       io.openshift.expose-services="8080:http" \
-      io.openshift.tags="builder,ruby,ruby${RUBY_SCL_NAME_VERSION},${RUBY_SCL}" \
+      io.openshift.tags="builder,ruby,NodeJS,Discourse${LATEST_KNOWN_DISCOURSE_VERSION}"\
       com.redhat.component="${RUBY_SCL}-container" \
       name="${IMAGE_NAME}" \
       version="1" \
       com.redhat.license_terms="https://www.redhat.com/en/about/red-hat-end-user-license-agreements#UBI" \
       usage="s2i build https://github.com/sclorg/s2i-ruby-container.git \
 --context-dir=${RUBY_VERSION}/test/puma-test-app/ ${IMAGE_NAME} ruby-sample-app" \
-      maintainer="SoftwareCollections.org <sclorg@redhat.com>"
+      maintainer="Open Source Community Infrastructure <osci.io>"
 
 RUN yum -y install epel-release
 
