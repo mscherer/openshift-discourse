@@ -95,7 +95,7 @@ RUN touch /run/nginx.pid && \
 
 # Add desired plugins here
 # Prometheus
-RUN git clone --depth=1 https://github.com/discourse/discourse-prometheus.git $HOME/plugins/discourse-prometheus && \
+RUN git clone -b stable --depth=1 https://github.com/discourse/discourse-prometheus.git $HOME/plugins/discourse-prometheus && \
 # Calendar
     git clone --depth=1 https://github.com/discourse/discourse-calendar.git $HOME/plugins/discourse-calendar
 
