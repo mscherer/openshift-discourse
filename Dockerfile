@@ -21,7 +21,7 @@ ENV RUBY_VERSION="${RUBY_MAJOR_VERSION}.${RUBY_MINOR_VERSION}" \
     NGINX_CONFIGURATION_PATH=${APP_ROOT}/etc/nginx \
 # Discourse env stuff
     EARLIEST_COMPATABLE_DISCOURSE_VERSION=2.6.0 \
-    LATEST_KNOWN_DISCOURSE_VERSION=2.8.0.beta2
+    LATEST_KNOWN_DISCOURSE_VERSION=2.8.0.beta4
 
 ENV IMAGE_NAME="centos8/discourse-${LATEST_KNOWN_DISCOURSE_VERSION}" \
     SUMMARY="Platform for building and running Ruby $RUBY_VERSION, \
@@ -95,7 +95,7 @@ RUN touch /run/nginx.pid && \
 
 # Add desired plugins here
 # Prometheus
-RUN git clone -b stable-branch --depth=1 https://github.com/discourse/discourse-prometheus.git $HOME/plugins/discourse-prometheus && \
+#RUN git clone -b stable-branch --depth=1 https://github.com/discourse/discourse-prometheus.git $HOME/plugins/discourse-prometheus && \
 # Calendar
     git clone --depth=1 https://github.com/discourse/discourse-calendar.git $HOME/plugins/discourse-calendar
 

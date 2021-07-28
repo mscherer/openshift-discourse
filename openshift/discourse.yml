@@ -250,22 +250,29 @@ objects:
           - mountPath: /opt/app-root/src/public/uploads/
             name: discourse-uploads
           name: discourse-sidekiq
-#         readinessProbe:
-#           exec:
-#             command: ['sh', '-c', 'cat /discourse/tmp/pids/sidekiq.pid']
-#           failureThreshold: 3
-#           initialDelaySeconds: 60
-#           periodSeconds: 10
-#           successThreshold: 1
-#           timeoutSeconds: 10
-#         livenessProbe:
-#           exec:
-#             command: ['sh', '-c', 'cat /discourse/tmp/pids/sidekiq.pid']
-#           failureThreshold: 3
-#           initialDelaySeconds: 300
-#            periodSeconds: 10
-#            successThreshold: 1
-#            timeoutSeconds: 10
+          resources:
+            limits:
+              memory: 800Mi
+              cpu: "1"
+            requests:
+              memory: 400Mi
+              cpu: 200m
+         readinessProbe:
+           exec:
+             command: ['sh', '-c', 'cat /opt/app-root/src/tmp/sidekiq.pid']
+           failureThreshold: 3
+           initialDelaySeconds: 60
+           periodSeconds: 10
+           successThreshold: 1
+           timeoutSeconds: 10
+         livenessProbe:
+           exec:
+             command: ['sh', '-c', 'cat /opt/app-root/src/tmp/sidekiq.pid']
+           failureThreshold: 3
+           initialDelaySeconds: 300
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 10
         - env:
           - name: DISCOURSE_DB_HOST
           - name: DISCOURSE_DB_PASSWORD
@@ -279,6 +286,14 @@ objects:
             initialDelaySeconds: 30
             timeoutSeconds: 3
           name: discourse-nginx
+          resources:
+            limits:
+              # limit as per https://github.com/discourse/discourse/blob/master/docs/ADMIN-QUICK-START-GUIDE.md#maintenance
+              memory: 1Gi
+              cpu: 1
+            requests:
+              memory: 320Mi
+              cpu: 200m
           command: ['sh', '-c', 'nginx -g "daemon off;" -c $NGINX_CONFIGURATION_PATH/nginx.conf']
           ports:
           - containerPort: 8081
@@ -737,7 +752,7 @@ parameters:
 #   generate: expression
 #   name: GITHUB_WEBHOOK_SECRET
 
-- displayName: Database Name
+- displayName: Dtabase Name
   name: DATABASE_NAME
   required: true
   value: discourse

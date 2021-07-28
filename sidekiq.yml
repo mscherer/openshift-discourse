@@ -1,6 +1,6 @@
 ---
 production:
-  :pidfile: /var/run/sidekiq.pid
+  :pidfile: /opt/app-root/src/tmp/sidekiq.pid
   :concurrency: 1
   :queues:
     - [critical, 4]
