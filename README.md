@@ -5,7 +5,7 @@ To get it working (with the optional SMTP set up and Admin users):
 
 `oc new-app -f openshift/discourse.yml -p PROJECT_NAME=<project-name> -p APPLICATION_DOMAIN=<yourdomain.com> -p DISCOURSE_ADMIN_EMAILS=<youradminsemails@example.com> -p DISCOURSE_ADMIN_EMAILS_KEY=<defaultadminpasswords> -p SMTP_USER=<userforsmtpserver> -p SMTP_PASSWORD=<smtpuserpassword> -p SMTP_ADDRESS=<smtp.example.com>`
 
-The postgresql extensions needed by discourse need to be done manually:
+The postgresql extensions needed by discourse need to be done manually until Misc's [PR:399](https://github.com/sclorg/postgresql-container/pull/399) on SCLORG's PSQL Container is merged:
 
 `oc get pods | grep postgresql-1-`
 
