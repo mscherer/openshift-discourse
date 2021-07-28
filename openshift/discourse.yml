@@ -257,19 +257,19 @@ objects:
             requests:
               memory: 400Mi
               cpu: 200m
-         readinessProbe:
-           exec:
-             command: ['sh', '-c', 'cat /opt/app-root/src/tmp/sidekiq.pid']
-           failureThreshold: 3
-           initialDelaySeconds: 60
-           periodSeconds: 10
-           successThreshold: 1
-           timeoutSeconds: 10
-         livenessProbe:
-           exec:
-             command: ['sh', '-c', 'cat /opt/app-root/src/tmp/sidekiq.pid']
-           failureThreshold: 3
-           initialDelaySeconds: 300
+          readinessProbe:
+            exec:
+              command: ['sh', '-c', 'cat /opt/app-root/src/tmp/sidekiq.pid']
+            failureThreshold: 3
+            initialDelaySeconds: 60
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 10
+          livenessProbe:
+            exec:
+              command: ['sh', '-c', 'cat /opt/app-root/src/tmp/sidekiq.pid']
+            failureThreshold: 3
+            initialDelaySeconds: 300
             periodSeconds: 10
             successThreshold: 1
             timeoutSeconds: 10
