@@ -68,7 +68,7 @@ objects:
   metadata:
     annotations:
       description: Keeps track of changes in the application base image
-    name: s2i-imagemagick-nodejs
+    name: s2i-discourse-container
     namespace: ${openshift.project()}
     tag: latest
 
@@ -78,12 +78,12 @@ objects:
     annotations:
       description: Takes s2i Ruby image and adds some dependencies
       template.alpha.openshift.io/wait-for-ready: 'true'
-    name: s2i-imagemagick-nodejs
+    name: s2i-discourse-container
   spec:
     output:
       to:
         kind: ImageStreamTag
-        name: s2i-imagemagick-nodejs:latest
+        name: s2i-discourse-container:latest
     source:
       git:
         ref: ${s2i_SOURCE_REPOSITORY_REF}
@@ -156,7 +156,7 @@ objects:
             value: redis
         from:
           kind: ImageStreamTag
-          name: s2i-imagemagick-nodejs:latest
+          name: s2i-discourse-container:latest
           #namespace: ${openshift.project()}
       type: Source
     triggers:
