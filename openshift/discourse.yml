@@ -336,22 +336,26 @@ objects:
             value: 'true'
           image: image-registry.openshift-image-registry.svc:5000/${PROJECT_NAME}/discourse:latest
           command: ['sh', '-c', 'bundler exec sidekiq -C config/sidekiq.yml']
-          readinessProbe:
-            exec:
-              command: ['sh', '-c', 'cat /opt/app-root/src/tmp/sidekiq.pid']
-            failureThreshold: 3
-            initialDelaySeconds: 60
-            periodSeconds: 10
-            successThreshold: 1
-            timeoutSeconds: 10
-          livenessProbe:
-            exec:
-              command: ['sh', '-c', 'cat /opt/app-root/src/tmp/sidekiq.pid']
-            failureThreshold: 3
-            initialDelaySeconds: 300
-            periodSeconds: 10
-            successThreshold: 1
-            timeoutSeconds: 10
+#          readinessProbe:
+#            exec:
+#              # for some reason this works in the discourse-puma &
+#              # discourse-sidekiq but not as a readynessProbe
+#              command: ['sh', '-c', 'export REDIS_URL=redis://f:${REDIS_PASSWORD}@redis:587/5 && bundle exec sidekiqmon processes']
+#            failureThreshold: 3
+#            initialDelaySeconds: 60
+#            periodSeconds: 10
+#            successThreshold: 1
+#            timeoutSeconds: 10
+#          livenessProbe:
+#            exec:
+#              # for some reason this works in the discourse-puma &
+#              # discourse-sidekiq but not livenessProbe
+#              command: ['sh', '-c', 'export REDIS_URL=redis://f:${REDIS_PASSWORD}@redis:587/5 && bundle exec sidekiqmon processes']
+#            failureThreshold: 3
+#            initialDelaySeconds: 300
+#            periodSeconds: 10
+#            successThreshold: 1
+#            timeoutSeconds: 10
           volumeMounts:
           - mountPath: /opt/app-root/src/public/uploads/
             name: discourse-uploads
