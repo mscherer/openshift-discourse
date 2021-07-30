@@ -1,8 +1,8 @@
 ---
-:concurrency: 1
-  production:
-    :queues:
-      - [critical, 4]
-      - [default, 2]
-      - [low]
-      - [ultra_low]
+production:
+  :concurrency: 1
+  :queues:
+    - [critical, 4]
+    - [default, 2]
+    - [low]
+    - [ultra_low]
