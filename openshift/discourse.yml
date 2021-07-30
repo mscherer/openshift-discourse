@@ -86,8 +86,8 @@ objects:
         name: s2i-discourse-container:latest
     source:
       git:
-        ref: ${s2i_SOURCE_REPOSITORY_REF}
-        uri: ${s2i_SOURCE_REPOSITORY_URL}
+        ref: ${S2I_SOURCE_REPOSITORY_REF}
+        uri: ${S2I_SOURCE_REPOSITORY_URL}
       type: Git
     strategy:
       dockerStrategy:
@@ -150,10 +150,10 @@ objects:
             value: 'true'
           - name: DISCOURSE_SERVE_STATIC_ASSETS
             value: 'true'
-          #- name: prometheus_trusted_ip_allowlist_regex
+          #- name: DISCOUSE_PROMETHEUS_TRUSTED_IP_ALLOWLIST_REGEX
           #  value: ${PROMETHEUS_DOMAIN}
-          - name: prometheus_collector_host
-            value: redis
+          #- name: DISCOURSE_PROMETHEUS_COLLECTOR_HOST
+          #  value: $(PROMETHEUS_HOST)
         from:
           kind: ImageStreamTag
           name: s2i-discourse-container:latest
@@ -206,8 +206,6 @@ objects:
               secretKeyRef:
                 key: database-password
                 name: '${NAME}'
-          - name: APP_MODULE
-            value: app
           - name: DISCOURSE_REDIS_PASSWORD
             value: ${REDIS_PASSWORD}
           - name: DISCOURSE_REDIS_HOST
@@ -246,7 +244,7 @@ objects:
             value: 'true'
           - name: DISCOURSE_MAXMIND_LICENSE_KEY
             value: '${DISCOURSE_MAXMIND_LICENSE_KEY}'
-          image: image-registry.openshift-image-registry.svc:5000/${PROJECT_NAME}/discourse:latest
+          image: ' '
           livenessProbe:
             httpGet:
               path: /
@@ -293,8 +291,6 @@ objects:
               secretKeyRef:
                 name: discourse
                 key: database-password
-          - name: APP_MODULE
-            value: app
           - name: DISCOURSE_REDIS_PASSWORD
             valueFrom:
               secretKeyRef:
@@ -329,18 +325,18 @@ objects:
                 name: '${NAME}'
                 key: smtp-password
           - name: DISCOURSE_SMTP_ADDRESS
-            value: mx1.osci.io
+            value: ${SMTP_ADDRESS}
           - name: DISCOURSE_SMTP_PORT
             value: '587'
           - name: SMTP_ENABLE_START_TLS
             value: 'true'
-          image: image-registry.openshift-image-registry.svc:5000/${PROJECT_NAME}/discourse:latest
+          image: ' '
           command: ['sh', '-c', 'bundler exec sidekiq -C config/sidekiq.yml']
 #          readinessProbe:
 #            exec:
 #              # for some reason this works in the discourse-puma &
 #              # discourse-sidekiq but not as a readynessProbe
-#              command: ['sh', '-c', 'export REDIS_URL=redis://f:${REDIS_PASSWORD}@redis:587/5 && bundle exec sidekiqmon processes']
+#              command: ['sh', '-c', 'export REDIS_URL=redis://f:$(REDIS_PASSWORD)@redis:587/5 && bundle exec sidekiqmon processes']
 #            failureThreshold: 3
 #            initialDelaySeconds: 60
 #            periodSeconds: 10
@@ -350,7 +346,7 @@ objects:
 #            exec:
 #              # for some reason this works in the discourse-puma &
 #              # discourse-sidekiq but not livenessProbe
-#              command: ['sh', '-c', 'export REDIS_URL=redis://f:${REDIS_PASSWORD}@redis:587/5 && bundle exec sidekiqmon processes']
+#              command: ['sh', '-c', 'export REDIS_URL=redis://f:$(REDIS_PASSWORD)@redis:587/5 && bundle exec sidekiqmon processes']
 #            failureThreshold: 3
 #            initialDelaySeconds: 300
 #            periodSeconds: 10
@@ -373,7 +369,7 @@ objects:
           - name: DISCOURSE_DB_PASSWORD
           - name: DISCOURSE_REDIS_PASSWORD
           - name: DISCOURSE_REDIS_HOST
-          image: image-registry.openshift-image-registry.svc:5000/${PROJECT_NAME}/discourse:latest
+          image: ' '
           command: ['sh', '-c', 'nginx -g "daemon off;" -c $NGINX_CONFIGURATION_PATH/nginx.conf']
           ports:
           - containerPort: 8081
@@ -398,12 +394,12 @@ objects:
               memory: ${MEMORY_NGINX_LIMIT}
               cpu: 1
             requests:
-              memory: 320Mi
+              memory: 50Mi
               cpu: 200m
 
         initContainers:
         - name: init-database-table
-          image: image-registry.openshift-image-registry.svc:5000/${PROJECT_NAME}/discourse:latest
+          image: ' '
           env:
             - name: DISCOURSE_ADMIN_EMAILS
               valueFrom:
@@ -415,7 +411,7 @@ objects:
                 secretKeyRef:
                   name: '${NAME}'
                   key: site-admin-password
-          command: ['sh', '-c', 'rake db:migrate --trace && $STI_SCRIPTS_PATH/initAdmins']
+          command: ['sh', '-c', 'rake db:prepare --trace && $STI_SCRIPTS_PATH/initAdmins']
         volumes:
         - name: discourse-uploads
           persistentVolumeClaim:
@@ -426,6 +422,9 @@ objects:
         automatic: true
         containerNames:
         - discourse-puma
+	- discourse-sidekiq
+	- discourse-nginx
+	- init-database-table
         from:
           kind: ImageStreamTag
           name: ${NAME}:latest
@@ -682,7 +681,7 @@ parameters:
   displayName: Memory Limit (Nginx)
   name: MEMORY_NGINX_LIMIT
   required: true
-  value: 512Mi
+  value: 100Mi
 
 - description: Volume space available for data, e.g. 512Mi, 2Gi.
   displayName: Volume Capacity
@@ -773,14 +772,14 @@ parameters:
 
 - description: The URL of the repository with your image source code.
   displayName: Git Repository URL
-  name: s2i_SOURCE_REPOSITORY_URL
+  name: S2I_SOURCE_REPOSITORY_URL
   required: true
   value: https://github.com/jontrossbach/openshift-discourse
 
 - description: Set this to a branch name, tag or other ref of your repository if you
     are not using the default branch.
   displayName: Git Reference
-  name: s2i_SOURCE_REPOSITORY_REF
+  name: S2I_SOURCE_REPOSITORY_REF
   value: main
 
 # Is convenient to add these from the oc process command with `-p` flag
