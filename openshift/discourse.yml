@@ -152,6 +152,8 @@ objects:
             value: 'true'
           #- name: prometheus_trusted_ip_allowlist_regex
           #  value: ${PROMETHEUS_DOMAIN}
+          - name: prometheus_collector_host
+            value: redis
         from:
           kind: ImageStreamTag
           name: s2i-imagemagick-nodejs:latest
