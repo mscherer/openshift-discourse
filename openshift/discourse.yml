@@ -394,7 +394,7 @@ objects:
               memory: ${MEMORY_NGINX_LIMIT}
               cpu: 1
             requests:
-              memory: 50Mi
+              memory: 320Mi
               cpu: 200m
 
         initContainers:
@@ -422,9 +422,9 @@ objects:
         automatic: true
         containerNames:
         - discourse-puma
-	- discourse-sidekiq
-	- discourse-nginx
-	- init-database-table
+        - discourse-sidekiq
+        - discourse-nginx
+        - init-database-table
         from:
           kind: ImageStreamTag
           name: ${NAME}:latest
@@ -681,7 +681,7 @@ parameters:
   displayName: Memory Limit (Nginx)
   name: MEMORY_NGINX_LIMIT
   required: true
-  value: 100Mi
+  value: 512Mi
 
 - description: Volume space available for data, e.g. 512Mi, 2Gi.
   displayName: Volume Capacity
