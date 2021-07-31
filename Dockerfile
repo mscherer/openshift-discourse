@@ -79,7 +79,8 @@ RUN MODULE_DEPS="make gcc gcc-c++ git openssl-devel jemalloc" && \
     yum -y clean all
 
 # Install nginx
-RUN dnf install -y nginx
+RUN dnf install -y nginx && \
+    dnf clean all
 RUN mkdir -p /var/nginx/cache
 RUN /usr/bin/chmod -R 770 /var/{lib,log}/nginx/ && chown -R :root /var/{lib,log}/nginx/
 

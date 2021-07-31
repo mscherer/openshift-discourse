@@ -25,8 +25,8 @@ objects:
     database-password: ${DATABASE_PASSWORD}
     database-user: ${DATABASE_USER}
     redis-password: ${REDIS_PASSWORD}
-    site-admin-password: ${DISCOURSE_ADMIN_EMAILS_KEY}
-    site-admin-user: ${DISCOURSE_ADMIN_EMAILS}
+    site-admin-emails-key: ${SITE_ADMIN_EMAILS_KEY}
+    site-admin-emails: ${SITE_ADMIN_EMAILS}
     smtp-password: ${SMTP_PASSWORD}
     smtp-user: ${SMTP_USER}
 
@@ -216,16 +216,16 @@ objects:
             value: "true"
           - name: DISCOURSE_SERVE_STATIC_ASSETS
             value: "true"
-          - name: DISCOURSE_ADMIN_EMAILS
+          - name: SITE_ADMIN_EMAILS
             valueFrom:
               secretKeyRef:
                 name: '${NAME}'
-                key: site-admin-user
-          - name: DISCOURSE_ADMIN_EMAILS_KEY
+                key: site-admin-emails
+          - name: SITE_ADMIN_EMAILS_KEY
             valueFrom:
               secretKeyRef:
                 name: '${NAME}'
-                key: site-admin-password
+                key: site-admin-emails-key
           - name: DISCOURSE_SMTP_USER_NAME
             valueFrom:
               secretKeyRef:
@@ -304,21 +304,21 @@ objects:
             value: 'true'
           - name: DISCOURSE_SERVE_STATIC_ASSETS
             value: 'true'
-          - name: DISCOURSE_ADMIN_EMAILS
+          - name: SITE_ADMIN_EMAILS
             valueFrom:
               secretKeyRef:
                 name: '${NAME}'
-                key: site-admin-user
+                key: site-admin-emails
           - name: DISCOURSE_SMTP_USER_NAME
             valueFrom:
               secretKeyRef:
                 name: '${NAME}'
                 key: smtp-user
-          - name: DISCOURSE_ADMIN_EMAILS_KEY
+          - name: SITE_ADMIN_EMAILS_KEY
             valueFrom:
               secretKeyRef:
                 name: '${NAME}'
-                key: site-admin-password
+                key: site-admin-emails-key
           - name: DISCOURSE_SMTP_PASSWORD
             valueFrom:
               secretKeyRef:
@@ -401,16 +401,16 @@ objects:
         - name: init-database-table
           image: ' '
           env:
-            - name: DISCOURSE_ADMIN_EMAILS
+            - name: SITE_ADMIN_EMAILS
               valueFrom:
                 secretKeyRef:
                   name: '${NAME}'
-                  key: site-admin-user
-            - name: DISCOURSE_ADMIN_EMAILS_KEY
+                  key: site-admin-emails
+            - name: SITE_ADMIN_EMAILS_KEY
               valueFrom:
                 secretKeyRef:
                   name: '${NAME}'
-                  key: site-admin-password
+                  key: site-admin-emails-key
           command: ['sh', '-c', 'rake db:prepare --trace && $STI_SCRIPTS_PATH/initAdmins']
         volumes:
         - name: discourse-uploads
@@ -663,7 +663,7 @@ parameters:
   displayName: Version of PostgreSQL Image
   name: POSTGRESQL_VERSION
   required: true
-  value: '10'
+  value: '13'
 
 - description: Maximum amount of memory the Rails container can use.
   displayName: Memory Limit
@@ -699,7 +699,7 @@ parameters:
     are not using the default branch.
   displayName: Git Reference
   name: SOURCE_REPOSITORY_REF
-  value: v2.7.4 
+  value: v2.7.7 
 
 # - description: Github trigger secret.  A difficult to guess string encoded as part
 #     of the webhook URL.  Not encrypted.
@@ -783,12 +783,12 @@ parameters:
   value: main
 
 # Is convenient to add these from the oc process command with `-p` flag
-- name: DISCOURSE_ADMIN_EMAILS
+- name: SITE_ADMIN_EMAILS
   descritpion: Discourse instance's default admin users (if not admins it will default to a set up screen upon successful deployment)
   displayName: Discourse admin emails
   required: false
 
-- name: DISCOURSE_ADMIN_EMAILS_KEY
+- name: SITE_ADMIN_EMAILS_KEY
   description: Discourse instance's default admin passwords (required if using default admins)
   displayName: Discourse admin Key
   required: false
@@ -799,16 +799,6 @@ parameters:
   displayName: Project name
   required: true
 
-- name: DISCOURSE_ADMIN_EMAILS
-  descritpion: Discourse instance's default admin users (if not admins it will default to a set up screen upon successful deployment)
-  displayName: Discourse admin emails
-  required: false
-
-- name: DISCOURSE_ADMIN_EMAILS_KEY
-  description: Discourse instance's default admin passwords (required if using default admins)
-  displayName: Discourse admin Key
-  required: false
-  
 - name: SMTP_USER
   descritpion: The SMTP server's user for discourse to be able to send emails
   displayName: Discourse SMTP user
