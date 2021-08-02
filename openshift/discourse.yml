@@ -397,7 +397,7 @@ objects:
               memory: ${MEMORY_NGINX_LIMIT}
               cpu: 1
             requests:
-              memory: 320Mi
+              memory: 50Mi
               cpu: 200m
 
         initContainers:
@@ -684,7 +684,7 @@ parameters:
   displayName: Memory Limit (Nginx)
   name: MEMORY_NGINX_LIMIT
   required: true
-  value: 512Mi
+  value: 100Mi
 
 - description: Volume space available for data, e.g. 512Mi, 2Gi.
   displayName: Volume Capacity
