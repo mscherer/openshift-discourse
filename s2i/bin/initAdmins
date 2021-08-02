@@ -1,6 +1,6 @@
 #!/bin/bash
 
-if [[ -v DISCOURSE_ADMIN_EMAILS ]]; then
+if [[ -v SITE_ADMIN_EMAILS ]]; then
     echo "---> Creating specified admin users ..."
     rake admin:create <<- END
 	$DISCOURSE_ADMIN_EMAILS

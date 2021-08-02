@@ -207,7 +207,10 @@ objects:
                 key: database-password
                 name: '${NAME}'
           - name: DISCOURSE_REDIS_PASSWORD
-            value: ${REDIS_PASSWORD}
+            valueFrom:
+              secretKeyRef:
+                name: '${NAME}'
+                key: redis-password
           - name: DISCOURSE_REDIS_HOST
             value: redis
           - name: RAILS_ENV
