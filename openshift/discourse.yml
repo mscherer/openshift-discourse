@@ -414,7 +414,7 @@ objects:
                 secretKeyRef:
                   name: '${NAME}'
                   key: site-admin-emails-key
-          command: ['sh', '-c', 'rake db:prepare --trace && $STI_SCRIPTS_PATH/initAdmins']
+          command: ['sh', '-c', 'rake db:migrate --trace && $STI_SCRIPTS_PATH/initAdmins']
         volumes:
         - name: discourse-uploads
           persistentVolumeClaim:
