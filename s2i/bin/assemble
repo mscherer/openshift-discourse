@@ -1,11 +1,11 @@
 #!/bin/bash
 
-function rake_assets_precompile() {
+- rake_assets_precompile() {
   [[ "$DISABLE_ASSET_COMPILATION" == "true" ]] && return
-  [ ! -f Gemfile ] && return
-  [ ! -f Rakefile ] && return
-  ! grep " rake " Gemfile.lock >/dev/null && return
-  ! bundle exec 'rake -T' | grep "assets:precompile" >/dev/null && return
+  [ ! -f Gemfile ] && return || echo "Gemfile not present" && break
+  [ ! -f Rakefile ] && return || echo "Rakefile not present" && break
+  ! grep -E  "\brake\b" Gemfile.lock >/dev/null && return || echo "Gemfile.lock not present" && break
+  ! bundle exec 'rake -T' | grep "assets:precompile" >/dev/null && return || echo "Assets not present" && break
 
   echo "---> Starting asset compilation ..."
   rake assets:precompile --trace
@@ -21,8 +21,8 @@ fi
 
 shopt -s dotglob
 echo "---> Installing application source ..."
-rsync -av --progress /tmp/src/* ./
-#mv /tmp/src/* ./
+#rsync -av --progress /tmp/src/* ./
+mv /tmp/src/* ./
 
 # Change the npm registry mirror if provided
 if [ -n "$NPM_MIRROR" ]; then
