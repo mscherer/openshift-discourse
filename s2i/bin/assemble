@@ -1,6 +1,6 @@
 #!/bin/bash
 
-- rake_assets_precompile() {
+rake_assets_precompile() {
   [[ "$DISABLE_ASSET_COMPILATION" == "true" ]] && return
   [ ! -f Gemfile ] && return || echo "Gemfile not present" && break
   [ ! -f Rakefile ] && return || echo "Rakefile not present" && break
