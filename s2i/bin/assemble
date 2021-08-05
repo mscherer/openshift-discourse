@@ -21,8 +21,10 @@ fi
 
 shopt -s dotglob
 echo "---> Installing application source ..."
-#rsync -av --progress /tmp/src/* ./
-mv /tmp/src/* ./
+rsync -av --progress /tmp/src/* ./
+# `$ mv /tmp/src/* ./` was not used because rsync allows
+# us to sync the overlaping files with out changind the
+# ones already their
 
 # Change the npm registry mirror if provided
 if [ -n "$NPM_MIRROR" ]; then
