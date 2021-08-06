@@ -414,7 +414,11 @@ objects:
                 secretKeyRef:
                   name: '${NAME}'
                   key: site-admin-emails-key
-          command: ['sh', '-c', 'rake db:migrate --trace && $STI_SCRIPTS_PATH/initAdmins']
+            - name: DISCOURSE_DB_USER
+              value: postgres
+          # If these fail look here: https://meta.discourse.org/t/198938
+          # eg try `$ rake db:drop db:create db:migrate`
+          command: ['sh', '-c', 'rake db:migrate --trace || rake db:setup --trace && $STI_SCRIPTS_PATH/initAdmins']
         volumes:
         - name: discourse-uploads
           persistentVolumeClaim:
