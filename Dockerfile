@@ -21,7 +21,9 @@ ENV RUBY_VERSION="${RUBY_MAJOR_VERSION}.${RUBY_MINOR_VERSION}" \
     NGINX_CONFIGURATION_PATH=${APP_ROOT}/etc/nginx \
 # Discourse env stuff
     EARLIEST_COMPATABLE_DISCOURSE_VERSION=2.6.0 \
-    LATEST_KNOWN_DISCOURSE_VERSION=2.8.0.beta4
+    LATEST_KNOWN_DISCOURSE_VERSION=2.8.0.beta4 \
+# Postgres client specification
+    ENABLED_MODULES=postgresql12
 
 ENV IMAGE_NAME="centos8/discourse-${LATEST_KNOWN_DISCOURSE_VERSION}" \
     SUMMARY="Platform for building and running Ruby $RUBY_VERSION, \
@@ -48,6 +50,8 @@ LABEL summary="$SUMMARY" \
 
 RUN yum -y install epel-release
 
+RUN dnf -y module enable postgresql:12
+
 RUN yum -y module enable ruby:$RUBY_VERSION && \
     INSTALL_PKGS=" \
     libffi-devel \
@@ -64,7 +68,7 @@ RUN yum -y module enable ruby:$RUBY_VERSION && \
 ENV PATH=/opt/rh/gcc-toolset-9/root/usr/bin:$PATH
 
 # Install Discourse Dependencies
-RUN dnf install -y postgresql ImageMagick brotli; yum clean all
+RUN dnf install -y postgresql ImageMagick brotli && yum clean all
 
 # install nodejs dependencies for the rest of discourse (not just the static asset compilation)
 ENV PATH=/opt/app-root/src/.npm-global/bin:$PATH
