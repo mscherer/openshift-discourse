@@ -1,4 +1,4 @@
-ee# openshift-discourse
+# openshift-discourse
 This is an automated setup of Discourse for OpenShift assuming you have an SMTP server you can use. The SMTP server is only optional insofar as you can have a proof of concept functioning without any of the email features of Discourse.
 
 To get it working with the optional SMTP set up and Admin users:
@@ -112,4 +112,4 @@ If you would like to contribute here are some areas I am already aware could use
  * Someone could take the build images out of the Discourse template and set them up such that they are pulling from quay.io instead of building on the cluster every time. This would decrease deployment time by a lot but may be more complicated than it sounds because Discourse seems to be doing `$ rake db:create` and initializing Redis during the build process.
     * With the above done we could reliably deploy to vanilla Kubernetes by [swaping DeploymentConfigs with Kubernetes Deployments](https://gist.github.com/jontrossbach/64a65a453f277a6cdc9c40c2c04d2ec5)
  * Document how to run the Discourse smoke tests on a remote URL
- * Get OpenShift monitoring stack working to monitor `openshift-discourse`. [This is the best explanation I've seen of how to get it working with Service Monitor](https://www.youtube.com/watch?v=TRSy6G3y9aY&t=2367s) and I tried to make a [fork of the discourse-prometheus plugin](https://github.com/jontrossbach/discourse-prometheus) from Discourse to get it to work but I was without success... I think... it was only recent changes that seemed to have broken broke Prometheus after a [localhost call was hard-coded in the plugin](https://meta.discourse.org/t/discourse-prometheus-plugin-throws-error-with-bitnami-discourse-2-6-7/197100)
+ * Get OpenShift monitoring stack working to monitor `openshift-discourse`. [This is the best explanation I've seen of how to get it working with Service Monitor](https://www.youtube.com/watch?v=TRSy6G3y9aY&t=2367s) and I tried to make a [fork of the discourse-prometheus plugin](https://github.com/jontrossbach/discourse-prometheus) from Discourse to get it to work but I was without success... I think... it was only recent changes that seemed to have broke `discourse-prometheus` after a [localhost call was hard-coded in the plugin](https://meta.discourse.org/t/discourse-prometheus-plugin-throws-error-with-bitnami-discourse-2-6-7/197100)
