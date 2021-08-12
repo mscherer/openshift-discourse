@@ -23,6 +23,7 @@ ENV RUBY_VERSION="${RUBY_MAJOR_VERSION}.${RUBY_MINOR_VERSION}" \
     EARLIEST_COMPATABLE_DISCOURSE_VERSION=2.6.0 \
     LATEST_KNOWN_DISCOURSE_VERSION=2.8.0.beta4 \
 # Postgres client specification
+    PSQL_VERSION=12 \
     ENABLED_MODULES=postgresql12
 
 ENV IMAGE_NAME="centos8/discourse-${LATEST_KNOWN_DISCOURSE_VERSION}" \
@@ -45,15 +46,22 @@ LABEL summary="$SUMMARY" \
       version="1" \
       com.redhat.license_terms="https://www.redhat.com/en/about/red-hat-end-user-license-agreements#UBI" \
       usage="s2i build https://github.com/sclorg/s2i-ruby-container.git \
---context-dir=${RUBY_VERSION}/test/puma-test-app/ ${IMAGE_NAME} ruby-sample-app" \
+--context-dir=${RUBY_VERSION}/test/puma-test-app/ ${IMAGE_NAME}" \
       maintainer="Open Source Community Infrastructure <osci.io>"
 
-RUN yum -y install epel-release
+RUN dnf -y install epel-release
 
-RUN dnf -y module enable postgresql:12
+RUN dnf -y module enable \
+    postgresql:$PSQL_VERSION \
+    ruby:$RUBY_VERSION
 
-RUN yum -y module enable ruby:$RUBY_VERSION && \
-    INSTALL_PKGS=" \
+ENV PATH=/opt/app-root/src/.npm-global/bin:/opt/rh/gcc-toolset-9/root/usr/bin:$PATH
+
+RUN OTHER_INSTALL_PKGS=" \
+    ImageMagick \
+    brotli \
+    " && \ 
+    RUBY_INSTALL_PKGS=" \
     libffi-devel \
     ruby \
     ruby-devel \
@@ -62,41 +70,50 @@ RUN yum -y module enable ruby:$RUBY_VERSION && \
     redhat-rpm-config \
     gcc-toolset-9 \
     " && \
-    yum install -y --setopt=tsflags=nodocs ${INSTALL_PKGS} && \
-    yum -y clean all --enablerepo='*' && \
-    rpm -V ${INSTALL_PKGS}
-ENV PATH=/opt/rh/gcc-toolset-9/root/usr/bin:$PATH
+    NODE_INSTALL_PKGS=" \
+    make \
+    gcc \
+    gcc-c++ \
+    git \
+    openssl-devel \
+    jemalloc \
+    nodejs-nodemon \
+    nss_wrapper" && \
+    PSQL_INSTALL_PKGS="postgresql" && \ 
+    NGINX_INSTALL_PKGS="nginx" && \
+    dnf install -y --setopt=tsflags=nodocs \
+    ${OTHER_INSTALL_PKGS} \
+    ${RUBY_INSTALL_PKGS} \
+    ${NODE_INSTALL_PKGS} \
+    ${PSQL_INSTALL_PKGS} \
+    ${NGINX_INSTALL_PKGS} \
+    && \
+    dnf -y clean all --enablerepo='*' && \
+    rpm -V \
+    ${OTHER_INSTALL_PKGS} \
+    ${RUBY_INSTALL_PKGS} \
+    ${NODE_INSTALL_PKGS} \
+    ${PSQL_INSTALL_PKGS} \
+    ${NGINX_INSTALL_PKGS}
 
-# Install Discourse Dependencies
-RUN dnf install -y postgresql ImageMagick brotli && yum clean all
+# Make relavent files available for Nginx without privelege escilation
+RUN mkdir -p /var/nginx/cache && \
+    /usr/bin/chmod -R 770 /var/{lib,log}/nginx/ && \
+    chown -R :root /var/{lib,log}/nginx/ && \
+    touch /run/nginx.pid && \
+    chmod -R 666 /run/nginx.pid && \
+    /usr/bin/chmod -R 770 /var/{lib,log}/nginx/ && \
+    chown -R :root /var/{lib,log}/nginx/
 
-# install nodejs dependencies for the rest of discourse (not just the static asset compilation)
-ENV PATH=/opt/app-root/src/.npm-global/bin:$PATH
-RUN MODULE_DEPS="make gcc gcc-c++ git openssl-devel jemalloc" && \
-    npm install -g uglify-js && \
+RUN npm install -g uglify-js && \
     npm install -g svgo && \
-    npm install -g terser && \
-    INSTALL_PKGS="$MODULE_DEPS nodejs-nodemon nss_wrapper" && \
-    ln -s /usr/lib/node_modules/nodemon/bin/nodemon.js /usr/bin/nodemon && \
-    yum install -y --setopt=tsflags=nodocs $INSTALL_PKGS && \
-    rpm -V $INSTALL_PKGS && \
-    yum -y clean all
-
-# Install nginx
-RUN dnf install -y nginx && \
-    dnf clean all
-RUN mkdir -p /var/nginx/cache
-RUN /usr/bin/chmod -R 770 /var/{lib,log}/nginx/ && chown -R :root /var/{lib,log}/nginx/
+    npm install -g terser
 
 # Copy Nginx, Discourse and Puma config files
 COPY ./nginx.global.conf ${NGINX_CONFIGURATION_PATH}/nginx.conf
 COPY ./nginx.conf ${NGINX_CONFIGURATION_PATH}/conf.d/discourse.conf
 COPY ./sidekiq.yml $HOME/../etc/sidekiq.yml
 COPY ./puma.rb $HOME/../etc/puma.rb
-
-# This should allow nginx-sidecar to start without priviledge escilation
-RUN touch /run/nginx.pid && \
-    chmod -R 666 /run/nginx.pid
 
 # Add desired plugins here
 # Prometheus
@@ -110,14 +127,12 @@ COPY ./s2i/bin/ $STI_SCRIPTS_PATH
 # Copy extra files to the image.
 COPY ./root/ /
 
-# Drop the root user and make the content of /opt/app-root owned by user 1001
-RUN chown -R 1001:0 ${APP_ROOT} && chmod -R ug+rwx ${APP_ROOT} #&& \
-    #rpm-file-permissions
+# initialize dir needed for puma/sidekiq persistent volume
+RUN mkdir -p ${APP_ROOT}/public/uploads/
 
-  # initialize dir needed for puma/sidekiq persistent volume
-RUN  mkdir ${APP_ROOT}/public/uploads/ && \
-     chmod -R 666 /run/nginx.pid && \
-     chown -R 1001:1001 /run/nginx.pid
+# Drop the root user and make the content of /opt/app-root owned by user 1001
+RUN chown -R 1001:0 ${APP_ROOT} && chmod -R ug+rwx ${APP_ROOT} && \
+    rpm-file-permissions
 
 USER 1001
 
