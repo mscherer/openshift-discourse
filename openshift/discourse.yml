@@ -339,7 +339,7 @@ objects:
             exec:
               # for some reason this works in the discourse-puma &
               # discourse-sidekiq but not as a readynessProbe
-              command: ['sh', '-c', 'export REDIS_URL=redis://f:$(REDIS_PASSWORD)@redis:587/5 && bundle exec sidekiqmon processes']
+              command: ['sh', '-c', 'export REDIS_URL=redis://f:$DISCOURSE_REDIS_PASSWORD@$REDIS_SERVICE_HOST:$REDIS_SERVICE_PORT/5 && bundle exec sidekiqmon processes']
             failureThreshold: 3
             initialDelaySeconds: 60
             periodSeconds: 10
@@ -349,7 +349,7 @@ objects:
             exec:
               # for some reason this works in the discourse-puma &
               # discourse-sidekiq but not livenessProbe
-              command: ['sh', '-c', 'export REDIS_URL=redis://f:$(REDIS_PASSWORD)@redis:587/5 && bundle exec sidekiqmon processes']
+              command: ['sh', '-c', 'export REDIS_URL=redis://f:$DISCOURSE_REDIS_PASSWORD@$REDIS_SERVICE_HOST:$REDIS_SERVICE_PORT/5 && bundle exec sidekiqmon processes']
             failureThreshold: 3
             initialDelaySeconds: 300
             periodSeconds: 10
