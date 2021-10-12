@@ -358,6 +358,8 @@ objects:
           volumeMounts:
           - mountPath: /opt/app-root/src/public/uploads/
             name: discourse-uploads
+          - mountPath: /opt/app-root/src/public/backups/
+            name: discourse-backups
           resources:
             limits:
               memory: 800Mi
@@ -391,6 +393,8 @@ objects:
           volumeMounts:
           - mountPath: /opt/app-root/src/public/uploads/
             name: discourse-uploads
+          - mountPath: /opt/app-root/src/public/backups/
+            name: discourse-backups
           resources:
             limits:
               # limit as per https://github.com/discourse/discourse/blob/master/docs/ADMIN-QUICK-START-GUIDE.md#maintenance
@@ -423,6 +427,10 @@ objects:
         - name: discourse-uploads
           persistentVolumeClaim:
             claimName: discourse-uploads
+        - name: discourse-backups
+          persistentVolumeClaim:
+            claimName: discourse-backups
+
 
     triggers:
     - imageChangeParams:
@@ -448,6 +456,18 @@ objects:
     resources:
       requests:
         storage: ${DISCOURSE_DATA_VOLUME_CAPACITY}
+
+- apiVersion: v1
+  kind: PersistentVolumeClaim
+  metadata:
+    name: discourse-backups
+  spec:
+    accessModes:
+    - ReadWriteOnce
+    resources:
+      requests:
+        storage: ${DISCOURSE_BACKUPS_VOLUME_CAPACITY}
+
 
 - apiVersion: v1
   kind: PersistentVolumeClaim
@@ -755,6 +775,12 @@ parameters:
 - description: Volume space available for discourse data, e.g. 512Mi, 2Gi.
   displayName: Discourse Data Volume Capacity
   name: DISCOURSE_DATA_VOLUME_CAPACITY
+  required: true
+  value: 1Gi
+
+- description: Volume space available for discourse backups
+  displayName: Discourse backup volume capacity
+  name: DISCOURSE_BACKUPS_VOLUME_CAPACITY
   required: true
   value: 1Gi
 
