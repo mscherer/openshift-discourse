@@ -252,6 +252,9 @@ objects:
             httpGet:
               path: /
               port: 8080
+              httpHeaders:
+              - name: Discourse-Track-View
+                value: '0'
             initialDelaySeconds: 30
             timeoutSeconds: 3
           ports:
@@ -260,6 +263,9 @@ objects:
             httpGet:
               path: /
               port: 8080
+              httpHeaders:
+              - name: Discourse-Track-View
+                value: '0'
             initialDelaySeconds: 3
             timeoutSeconds: 3
           volumeMounts:
