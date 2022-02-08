@@ -63,6 +63,7 @@ RUN yum -y module enable ruby:$RUBY_VERSION && \
     rubygem-rake \
     rubygem-bundler \
     redhat-rpm-config \
+    glibc-static \
     gcc-toolset-9 \
     " && \
     yum install -y --setopt=tsflags=nodocs ${INSTALL_PKGS} && \
