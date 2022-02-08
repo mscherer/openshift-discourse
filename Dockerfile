@@ -7,8 +7,8 @@ EXPOSE 8080
 EXPOSE 8081
 EXPOSE 9405
 
-ENV RUBY_MAJOR_VERSION=2 \
-    RUBY_MINOR_VERSION=7
+ENV RUBY_MAJOR_VERSION=3 \
+    RUBY_MINOR_VERSION=0
 
 # Ruby env stuff
 ENV RUBY_VERSION="${RUBY_MAJOR_VERSION}.${RUBY_MINOR_VERSION}" \
@@ -63,7 +63,6 @@ RUN yum -y module enable ruby:$RUBY_VERSION && \
     rubygem-rake \
     rubygem-bundler \
     redhat-rpm-config \
-    glibc-static \
     gcc-toolset-9 \
     " && \
     yum install -y --setopt=tsflags=nodocs ${INSTALL_PKGS} && \
