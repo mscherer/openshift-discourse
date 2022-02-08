@@ -48,6 +48,9 @@ LABEL summary="$SUMMARY" \
 --context-dir=${RUBY_VERSION}/test/puma-test-app/ ${IMAGE_NAME} ruby-sample-app" \
       maintainer="Open Source Community Infrastructure <osci.io>"
 
+RUN sed -i -e "s|mirrorlist=|#mirrorlist=|g" /etc/yum.repos.d/CentOS-* 
+RUN sed -i -e "s|#baseurl=http://mirror.centos.org|baseurl=http://vault.centos.org|g" /etc/yum.repos.d/CentOS-*
+RUN yum -y swap centos-linux-repos centos-stream-repos 
 RUN yum -y install epel-release
 
 RUN dnf -y module enable postgresql:12
