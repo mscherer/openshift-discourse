@@ -21,7 +21,7 @@ ENV RUBY_VERSION="${RUBY_MAJOR_VERSION}.${RUBY_MINOR_VERSION}" \
     NGINX_CONFIGURATION_PATH=${APP_ROOT}/etc/nginx \
 # Discourse env stuff
     EARLIEST_COMPATABLE_DISCOURSE_VERSION=2.6.0 \
-    LATEST_KNOWN_DISCOURSE_VERSION=2.8.0.beta4 \
+    LATEST_KNOWN_DISCOURSE_VERSION=2.8.0 \
 # Postgres client specification
     ENABLED_MODULES=postgresql12
 
@@ -50,9 +50,9 @@ LABEL summary="$SUMMARY" \
 
 RUN sed -i -e "s|mirrorlist=|#mirrorlist=|g" /etc/yum.repos.d/CentOS-* 
 RUN sed -i -e "s|#baseurl=http://mirror.centos.org|baseurl=http://vault.centos.org|g" /etc/yum.repos.d/CentOS-*
-RUN yum -y swap centos-linux-repos centos-stream-repos 
-RUN yum -y install epel-release
-
+RUN dnf -y swap centos-linux-repos centos-stream-repos 
+RUN dnf -y install epel-release
+RUN dnf -y upgrade
 RUN dnf -y module enable postgresql:12
 
 RUN yum -y module enable ruby:$RUBY_VERSION && \
